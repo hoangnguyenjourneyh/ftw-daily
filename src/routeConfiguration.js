@@ -5,6 +5,7 @@ import {
   CheckoutPage,
   ContactDetailsPage,
   EditListingPage,
+  EditTeacherListingPage,
   EmailVerificationPage,
   InboxPage,
   LandingPage,
@@ -112,6 +113,24 @@ const routeConfiguration = () => {
       authPage: 'LoginPage',
       component: props => <ListingPage {...props} />,
       loadData: ListingPage.loadData,
+    },
+    {
+      path: '/t/:slug/:id/:type/:tab',
+      name: 'EditTeacherListingPage',
+      auth: true,
+      component: props => <EditTeacherListingPage {...props} />,
+      loadData: EditTeacherListingPage.loadData,
+    },
+    {
+      path: '/t/new',
+      name: 'NewTeacherListingPage',
+      auth: true,
+      component: () => (
+        <NamedRedirect
+          name="EditTeacherListingPage"
+          params={{ slug: draftSlug, id: draftId, type: 'new', tab: 'general'}}
+        />
+      ),
     },
     {
       path: '/l/new',

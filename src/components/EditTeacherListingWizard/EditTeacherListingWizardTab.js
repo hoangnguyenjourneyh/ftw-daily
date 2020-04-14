@@ -11,34 +11,25 @@ import { ensureListing } from '../../util/data';
 import { createResourceLocatorString } from '../../util/routes';
 import {
   EditListingAvailabilityPanel,
-  EditListingDescriptionPanel,
-  EditListingFeaturesPanel,
   EditListingLocationPanel,
-  EditListingPhotosPanel,
-  EditListingPoliciesPanel,
   EditListingPricingPanel,
-} from '../../components';
-
-import css from './EditListingWizard.css';
-
-export const AVAILABILITY = 'availability';
-export const DESCRIPTION = 'description';
-export const FEATURES = 'features';
-export const POLICY = 'policy';
-export const LOCATION = 'location';
-export const PRICING = 'pricing';
-export const PHOTOS = 'photos';
-export const GENERAL = 'general';
-
-// EditListingWizardTab component supports these tabs
-export const SUPPORTED_TABS = [
-  DESCRIPTION,
-  FEATURES,
-  POLICY,
+  EditListingGeneralPanel,
+} from '..';
+import {
   LOCATION,
   PRICING,
   AVAILABILITY,
-  PHOTOS,
+  GENERAL,
+} from '../EditListingWizard/EditListingWizardTab';
+
+import css from './EditTeacherListingWizard.css';
+
+// EditListingWizardTab component supports these tabs
+export const SUPPORTED_TABS = [
+  GENERAL,
+  LOCATION,
+  PRICING,
+  AVAILABILITY,
 ];
 
 const pathParamsToNextTab = (params, tab, marketplaceTabs) => {
@@ -62,13 +53,12 @@ const redirectAfterDraftUpdate = (listingId, params, tab, marketplaceTabs, histo
   // Replace current "new" path to "draft" path.
   // Browser's back button should lead to editing current draft instead of creating a new one.
   if (params.type === LISTING_PAGE_PARAM_TYPE_NEW) {
-    const draftURI = createResourceLocatorString('EditListingPage', routes, currentPathParams, {});
+    const draftURI = createResourceLocatorString('EditTeacherListingPage', routes, currentPathParams, {});
     history.replace(draftURI);
   }
-
   // Redirect to next tab
   const nextPathParams = pathParamsToNextTab(currentPathParams, tab, marketplaceTabs);
-  const to = createResourceLocatorString('EditListingPage', routes, nextPathParams, {});
+  const to = createResourceLocatorString('EditTeacherListingPage', routes, nextPathParams, {});
   history.push(to);
 };
 
@@ -81,16 +71,12 @@ const EditListingWizardTab = props => {
     fetchInProgress,
     newListingPublished,
     history,
-    images,
     availability,
     listing,
     handleCreateFlowTabScrolling,
     handlePublishListing,
     onUpdateListing,
     onCreateListingDraft,
-    onImageUpload,
-    onUpdateImageOrder,
-    onRemoveImage,
     onChange,
     updatedTab,
     updateInProgress,
@@ -106,14 +92,12 @@ const EditListingWizardTab = props => {
   const imageIds = images => {
     return images ? images.map(img => img.imageId || img.id) : null;
   };
-
   const onCompleteEditListingWizardTab = (tab, updateValues) => {
     // Normalize images for API call
     const { images: updatedImages, ...otherValues } = updateValues;
     const imageProperty =
       typeof updatedImages !== 'undefined' ? { images: imageIds(updatedImages) } : {};
     const updateValuesWithImages = { ...otherValues, ...imageProperty };
-
     if (isNewListingFlow) {
       const onUpsertListingDraft = isNewURI
         ? (tab, updateValues) => onCreateListingDraft(updateValues)
@@ -158,41 +142,13 @@ const EditListingWizardTab = props => {
   };
 
   switch (tab) {
-    case DESCRIPTION: {
+    case GENERAL: {
       const submitButtonTranslationKey = isNewListingFlow
-        ? 'EditListingWizard.saveNewDescription'
-        : 'EditListingWizard.saveEditDescription';
+        ? 'EditListingWizard.saveNewGeneral'
+        : 'EditListingWizard.saveEditGeneral';
       return (
-        <EditListingDescriptionPanel
-          {...panelProps(DESCRIPTION)}
-          submitButtonText={intl.formatMessage({ id: submitButtonTranslationKey })}
-          onSubmit={values => {
-            onCompleteEditListingWizardTab(tab, values);
-          }}
-        />
-      );
-    }
-    case FEATURES: {
-      const submitButtonTranslationKey = isNewListingFlow
-        ? 'EditListingWizard.saveNewFeatures'
-        : 'EditListingWizard.saveEditFeatures';
-      return (
-        <EditListingFeaturesPanel
-          {...panelProps(FEATURES)}
-          submitButtonText={intl.formatMessage({ id: submitButtonTranslationKey })}
-          onSubmit={values => {
-            onCompleteEditListingWizardTab(tab, values);
-          }}
-        />
-      );
-    }
-    case POLICY: {
-      const submitButtonTranslationKey = isNewListingFlow
-        ? 'EditListingWizard.saveNewPolicies'
-        : 'EditListingWizard.saveEditPolicies';
-      return (
-        <EditListingPoliciesPanel
-          {...panelProps(POLICY)}
+        <EditListingGeneralPanel
+          {...panelProps(GENERAL)}
           submitButtonText={intl.formatMessage({ id: submitButtonTranslationKey })}
           onSubmit={values => {
             onCompleteEditListingWizardTab(tab, values);
@@ -230,7 +186,7 @@ const EditListingWizardTab = props => {
     }
     case AVAILABILITY: {
       const submitButtonTranslationKey = isNewListingFlow
-        ? 'EditListingWizard.saveNewAvailability'
+        ? 'EditListingWizard.saveNewPhotos'
         : 'EditListingWizard.saveEditAvailability';
       return (
         <EditListingAvailabilityPanel
@@ -240,25 +196,6 @@ const EditListingWizardTab = props => {
           onSubmit={values => {
             onCompleteEditListingWizardTab(tab, values);
           }}
-        />
-      );
-    }
-    case PHOTOS: {
-      const submitButtonTranslationKey = isNewListingFlow
-        ? 'EditListingWizard.saveNewPhotos'
-        : 'EditListingWizard.saveEditPhotos';
-
-      return (
-        <EditListingPhotosPanel
-          {...panelProps(PHOTOS)}
-          submitButtonText={intl.formatMessage({ id: submitButtonTranslationKey })}
-          images={images}
-          onImageUpload={onImageUpload}
-          onRemoveImage={onRemoveImage}
-          onSubmit={values => {
-            onCompleteEditListingWizardTab(tab, values);
-          }}
-          onUpdateImageOrder={onUpdateImageOrder}
         />
       );
     }
@@ -313,9 +250,6 @@ EditListingWizardTab.propTypes = {
   handlePublishListing: func.isRequired,
   onUpdateListing: func.isRequired,
   onCreateListingDraft: func.isRequired,
-  onImageUpload: func.isRequired,
-  onUpdateImageOrder: func.isRequired,
-  onRemoveImage: func.isRequired,
   onChange: func.isRequired,
   updatedTab: string,
   updateInProgress: bool.isRequired,

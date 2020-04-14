@@ -37,6 +37,20 @@ export const amenities = [
   },
 ];
 
+export const subjects = [
+  { key: 'math', label: 'Math' },
+  { key: 'physics', label: 'Physics' },
+  { key: 'chemistry', label: 'Chemistry' },
+  { key: 'art', label: 'Art' },
+];
+
+export const levels = [
+  { key: 'beginner', label: 'Beginner' },
+  { key: 'intermediate', label: 'Intermediate' },
+  { key: 'advance', label: 'Advance' },
+  { key: 'expert', label: 'Expert' },
+];
+
 export const categories = [
   { key: 'smoke', label: 'Smoke' },
   { key: 'electric', label: 'Electric' },
