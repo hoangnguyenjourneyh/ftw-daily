@@ -1,5 +1,5 @@
 import React from 'react';
-import { arrayOf, bool, func, shape, string } from 'prop-types';
+import { bool, func, string } from 'prop-types';
 import { compose } from 'redux';
 import { Form as FinalForm } from 'react-final-form';
 import arrayMutators from 'final-form-arrays';
@@ -149,12 +149,6 @@ EditListingGeneralFormComponent.propTypes = {
   updated: bool.isRequired,
   updateError: propTypes.error,
   updateInProgress: bool.isRequired,
-  capacityOptions: arrayOf(
-    shape({
-      key: string.isRequired,
-      label: string.isRequired,
-    })
-  ).isRequired,
 };
 
 export default compose(injectIntl)(EditListingGeneralFormComponent);
