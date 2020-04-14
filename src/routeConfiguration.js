@@ -122,6 +122,13 @@ const routeConfiguration = () => {
       loadData: EditTeacherListingPage.loadData,
     },
     {
+      path: '/t/:slug/:id/:type/:tab/:returnURLType',
+      name: 'EditTeacherListingStripeOnboardingPage',
+      auth: true,
+      component: props => <EditTeacherListingPage {...props} />,
+      loadData: EditTeacherListingPage.loadData,
+    },
+    {
       path: '/t/new',
       name: 'NewTeacherListingPage',
       auth: true,
