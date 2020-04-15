@@ -47,6 +47,7 @@ const EditListingGeneralPanel = props => {
             title: name,
             description: bio,
             publicData: {
+              isTeacher: true,
               subjects,
               levels,
               hours,

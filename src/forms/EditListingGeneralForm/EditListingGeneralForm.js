@@ -41,8 +41,6 @@ export const EditListingGeneralFormComponent = props => (
       const subjectMessage = intl.formatMessage({ id: 'EditListingGeneralForm.subject' });
       const levelMessage = intl.formatMessage({ id: 'EditListingGeneralForm.level' });
       const hourMessage = intl.formatMessage({ id: 'EditListingGeneralForm.hour' });
-      const fullTimeMessage = intl.formatMessage({ id: 'EditListingGeneralForm.fullTime' });
-      const partTimeMessage = intl.formatMessage({ id: 'EditListingGeneralForm.partTime' });
 
       const nameRequiredMessage = intl.formatMessage({ id: 'EditListingGeneralForm.nameRequired' });
       const bioRequiredMessage = intl.formatMessage({ id: 'EditListingGeneralForm.bioRequired' });
@@ -108,18 +106,15 @@ export const EditListingGeneralFormComponent = props => (
           />
           <div>
             <label> {hourMessage} </label>
-            <FieldRadioButton
-              id="partTime"
-              name="hours"
-              label={partTimeMessage}
-              value="partTime"
-            />
-            <FieldRadioButton
-              id="fullTime"
-              name="hours"
-              label={fullTimeMessage}
-              value="fullTime"
-            />
+            {config.custom && config.custom.teachingHours.map( item => (
+              <FieldRadioButton
+                key={item.key}
+                id={item.key}
+                name="hours"
+                label={item.label}
+                value={item.key}
+              />
+            ))}
           </div>
           
           <Button

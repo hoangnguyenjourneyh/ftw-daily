@@ -58,6 +58,11 @@ export const categories = [
   { key: 'other', label: 'Other' },
 ];
 
+export const teachingHours = [
+  { key: 'partTime', label: 'Part Time' },
+  { key: 'fullTime', label: 'Full Time' },
+];
+
 // Price filter configuration
 // Note: unlike most prices this is not handled in subunits
 export const priceFilterConfig = {

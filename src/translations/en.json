@@ -380,6 +380,11 @@
   "ListingPage.schemaTitle": "{title} - {price} | {siteTitle}",
   "ListingPage.viewImagesButton": "View photos ({count})",
   "ListingPage.yourHostHeading": "Your host",
+  "TeacherListingPage.bioTitle": "About this teacher",
+  "TeacherListingPage.subjectTitle": "Subject",
+  "TeacherListingPage.levelTitle": "Level",
+  "TeacherListingPage.hourTitle": "Teaching Hours",
+
   "LocationAutocompleteInput.currentLocation": "Current location",
   "LocationSearchForm.placeholder": "Search saunas…",
   "LoginForm.emailInvalid": "A valid email address is required",

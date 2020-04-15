@@ -10,6 +10,7 @@ import {
   InboxPage,
   LandingPage,
   ListingPage,
+  TeacherListingPage,
   ManageListingsPage,
   NotFoundPage,
   PasswordChangePage,
@@ -89,30 +90,10 @@ const routeConfiguration = () => {
       loadData: SearchPage.loadData,
     },
     {
-      path: '/l',
-      name: 'ListingBasePage',
-      component: RedirectToLandingPage,
-    },
-    {
-      path: '/l/:slug/:id',
-      name: 'ListingPage',
-      component: props => <ListingPage {...props} />,
-      loadData: ListingPage.loadData,
-    },
-    {
-      path: '/l/:slug/:id/checkout',
-      name: 'CheckoutPage',
-      auth: true,
-      component: props => <CheckoutPage {...props} />,
-      setInitialValues: CheckoutPage.setInitialValues,
-    },
-    {
-      path: '/l/:slug/:id/:variant',
-      name: 'ListingPageVariant',
-      auth: true,
-      authPage: 'LoginPage',
-      component: props => <ListingPage {...props} />,
-      loadData: ListingPage.loadData,
+      path: '/t/:slug/:id',
+      name: 'TeacherListingPage',
+      component: props => <TeacherListingPage {...props} />,
+      loadData: TeacherListingPage.loadData,
     },
     {
       path: '/t/:slug/:id/:type/:tab',
@@ -138,6 +119,32 @@ const routeConfiguration = () => {
           params={{ slug: draftSlug, id: draftId, type: 'new', tab: 'general'}}
         />
       ),
+    },
+    {
+      path: '/l',
+      name: 'ListingBasePage',
+      component: RedirectToLandingPage,
+    },
+    {
+      path: '/l/:slug/:id',
+      name: 'ListingPage',
+      component: props => <ListingPage {...props} />,
+      loadData: ListingPage.loadData,
+    },
+    {
+      path: '/l/:slug/:id/checkout',
+      name: 'CheckoutPage',
+      auth: true,
+      component: props => <CheckoutPage {...props} />,
+      setInitialValues: CheckoutPage.setInitialValues,
+    },
+    {
+      path: '/l/:slug/:id/:variant',
+      name: 'ListingPageVariant',
+      auth: true,
+      authPage: 'LoginPage',
+      component: props => <ListingPage {...props} />,
+      loadData: ListingPage.loadData,
     },
     {
       path: '/l/new',

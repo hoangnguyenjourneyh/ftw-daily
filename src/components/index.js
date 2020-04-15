@@ -164,7 +164,6 @@ export { default as EditListingLocationPanel } from './EditListingLocationPanel/
 export { default as EditListingPhotosPanel } from './EditListingPhotosPanel/EditListingPhotosPanel';
 export { default as EditListingPoliciesPanel } from './EditListingPoliciesPanel/EditListingPoliciesPanel';
 export { default as EditListingPricingPanel } from './EditListingPricingPanel/EditListingPricingPanel';
-export { default as EditListingCapacityPanel } from './EditListingCapacityPanel/EditListingCapacityPanel';
 export { default as EditListingGeneralPanel } from './EditListingGeneralPanel/EditListingGeneralPanel';
 export { default as EditTeacherListingWizard } from './EditTeacherListingWizard/EditTeacherListingWizard';
 export { default as EditListingWizard } from './EditListingWizard/EditListingWizard';

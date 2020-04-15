@@ -5,6 +5,9 @@ import { propTypes } from '../../util/types';
 import { ListingCard, PaginationLinks } from '../../components';
 import css from './SearchResultsPanel.css';
 
+const isTeacherListing = (list) => list && list.attributes && list.attributes.publicData 
+  && list.attributes.publicData.isTeacher && 'TeacherListingPage';
+ 
 const SearchResultsPanel = props => {
   const { className, rootClassName, listings, pagination, search, setActiveListing } = props;
   const classes = classNames(rootClassName || css.root, className);
@@ -28,13 +31,14 @@ const SearchResultsPanel = props => {
     `(max-width: 1920px) ${panelLargeWidth / 2}vw`,
     `${panelLargeWidth / 3}vw`,
   ].join(', ');
-
+  
   return (
     <div className={classes}>
       <div className={css.listingCards}>
         {listings.map(l => (
           <ListingCard
             className={css.listingCard}
+            routeName={isTeacherListing(l)}
             key={l.id.uuid}
             listing={l}
             renderSizes={cardRenderSizes}

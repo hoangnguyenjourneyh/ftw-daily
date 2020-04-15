@@ -33,9 +33,6 @@ import {
   requestCreateListingDraft,
   requestPublishListingDraft,
   requestUpdateListing,
-  requestImageUpload,
-  updateImageOrder,
-  removeListingImage,
   loadData,
   clearUpdatedTab,
   savePayoutDetails,
@@ -71,13 +68,10 @@ export const EditTeacherListingPageComponent = props => {
     onCreateListingDraft,
     onPublishListingDraft,
     onUpdateListing,
-    onImageUpload,
-    onRemoveListingImage,
     onManageDisableScrolling,
     onPayoutDetailsFormSubmit,
     onPayoutDetailsFormChange,
     onGetStripeConnectAccountLink,
-    onUpdateImageOrder,
     onChange,
     page,
     params,
@@ -119,7 +113,7 @@ export const EditTeacherListingPageComponent = props => {
           },
         }
       : {
-          name: 'ListingPage',
+          name: 'TeacherListingPage',
           params: {
             id: listingId.uuid,
             slug: listingSlug,
@@ -201,9 +195,6 @@ export const EditTeacherListingPageComponent = props => {
           onPayoutDetailsSubmit={onPayoutDetailsFormSubmit}
           onGetStripeConnectAccountLink={onGetStripeConnectAccountLink}
           getAccountLinkInProgress={getAccountLinkInProgress}
-          onImageUpload={onImageUpload}
-          onUpdateImageOrder={onUpdateImageOrder}
-          onRemoveImage={onRemoveListingImage}
           onChange={onChange}
           currentUser={currentUser}
           onManageDisableScrolling={onManageDisableScrolling}
@@ -266,12 +257,9 @@ EditTeacherListingPageComponent.propTypes = {
   onGetStripeConnectAccountLink: func.isRequired,
   onCreateListingDraft: func.isRequired,
   onPublishListingDraft: func.isRequired,
-  onImageUpload: func.isRequired,
   onManageDisableScrolling: func.isRequired,
   onPayoutDetailsFormChange: func.isRequired,
   onPayoutDetailsFormSubmit: func.isRequired,
-  onUpdateImageOrder: func.isRequired,
-  onRemoveListingImage: func.isRequired,
   onUpdateListing: func.isRequired,
   onChange: func.isRequired,
   page: object.isRequired,
@@ -341,7 +329,6 @@ const mapDispatchToProps = dispatch => ({
   onDeleteAvailabilityException: params => dispatch(requestDeleteAvailabilityException(params)),
   onCreateListingDraft: values => dispatch(requestCreateListingDraft(values)),
   onPublishListingDraft: listingId => dispatch(requestPublishListingDraft(listingId)),
-  onImageUpload: data => dispatch(requestImageUpload(data)),
   onManageDisableScrolling: (componentId, disableScrolling) =>
     dispatch(manageDisableScrolling(componentId, disableScrolling)),
   onPayoutDetailsFormChange: () => dispatch(stripeAccountClearError()),
@@ -349,8 +336,6 @@ const mapDispatchToProps = dispatch => ({
   onPayoutDetailsFormSubmit: (values, isUpdateCall) =>
     dispatch(savePayoutDetails(values, isUpdateCall)),
   onGetStripeConnectAccountLink: params => dispatch(getStripeConnectAccountLink(params)),
-  onUpdateImageOrder: imageOrder => dispatch(updateImageOrder(imageOrder)),
-  onRemoveListingImage: imageId => dispatch(removeListingImage(imageId)),
   onChange: () => dispatch(clearUpdatedTab()),
 });
 
