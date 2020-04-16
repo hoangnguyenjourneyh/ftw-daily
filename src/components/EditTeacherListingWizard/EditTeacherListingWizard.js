@@ -78,7 +78,7 @@ const tabCompleted = (tab, listing) => {
     price,
     publicData,
   } = listing.attributes;
-  const generalData = description && title && publicData && publicData.subjects && publicData.levels && publicData.hours;
+  const generalData = description && title && publicData && publicData.subjects && publicData.levels && publicData.teachingHours;
   switch (tab) {
     case GENERAL:
       return !!(generalData);

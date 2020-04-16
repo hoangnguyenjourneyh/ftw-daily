@@ -7,7 +7,7 @@ import { withRouter } from 'react-router-dom';
 import omit from 'lodash/omit';
 
 import config from '../../config';
-import { BookingDateRangeFilter, PriceFilter, KeywordFilter, SortBy } from '../../components';
+import { BookingDateRangeFilter, PriceFilter, KeywordFilter, SortBy, SelectMultipleFilter, SelectSingleFilter } from '../../components';
 import routeConfiguration from '../../routeConfiguration';
 import { parseDateFromISO8601, stringifyDateToISO8601 } from '../../util/dates';
 import { createResourceLocatorString } from '../../util/routes';
@@ -49,6 +49,11 @@ const initialDateRangeValue = (queryParams, paramName) => {
   return initialValues;
 };
 
+const initialMutipleValues = (queryParams, paramName) => {
+  const splitQueryParam = queryParam => (queryParam ? queryParam.split(',') : []);
+  return splitQueryParam(queryParams[paramName]);
+};
+
 const SearchFiltersComponent = props => {
   const {
     rootClassName,
@@ -61,6 +66,9 @@ const SearchFiltersComponent = props => {
     priceFilter,
     dateRangeFilter,
     keywordFilter,
+    subjectsFilter,
+    levelsFilter,
+    teachingHoursFilter,
     isSearchFiltersPanelOpen,
     toggleSearchFiltersPanel,
     searchFiltersPanelSelectedCount,
@@ -87,8 +95,17 @@ const SearchFiltersComponent = props => {
     ? initialValue(urlQueryParams, keywordFilter.paramName)
     : null;
 
-  const isKeywordFilterActive = !!initialKeyword;
+  const initialSubject = subjectsFilter
+    ? initialMutipleValues(urlQueryParams, subjectsFilter.paramName) : null;
 
+  const initialLevel = levelsFilter
+    ? initialMutipleValues(urlQueryParams, levelsFilter.paramName) : null;
+
+  const initialTeachingHour = teachingHoursFilter
+    ? initialValue(urlQueryParams, teachingHoursFilter.paramName) : null;
+    console.log('initialTeachingHour :', initialTeachingHour);
+
+  const isKeywordFilterActive = !!initialKeyword;
   const handlePrice = (urlParam, range) => {
     const { minPrice, maxPrice } = range || {};
     const queryParams =
@@ -114,6 +131,22 @@ const SearchFiltersComponent = props => {
   };
 
   const handleKeyword = (urlParam, values) => {
+    const queryParams = values
+      ? { ...urlQueryParams, [urlParam]: values }
+      : omit(urlQueryParams, urlParam);
+
+    history.push(createResourceLocatorString('SearchPage', routeConfiguration(), {}, queryParams));
+  };
+
+  const handleSelectMultipleFilter = (urlParam, values) => {
+    const queryParams = values
+      ? { ...urlQueryParams, [urlParam]: values }
+      : omit(urlQueryParams, urlParam);
+
+    history.push(createResourceLocatorString('SearchPage', routeConfiguration(), {}, queryParams));
+  };
+
+  const handleSelectSingleFilter = (urlParam, values) => {
     const queryParams = values
       ? { ...urlQueryParams, [urlParam]: values }
       : omit(urlQueryParams, urlParam);
@@ -158,6 +191,46 @@ const SearchFiltersComponent = props => {
         contentPlacementOffset={FILTER_DROPDOWN_OFFSET}
       />
     ) : null;
+
+  const subjectsFilterElement = subjectsFilter ? (
+    <SelectMultipleFilter
+      id={'SearchFilters.subjectsFilter'}
+      name="subjects"
+      urlParam={subjectsFilter.paramName}
+      label={'Subject'}
+      onSubmit={handleSelectMultipleFilter}
+      showAsPopup
+      options={subjectsFilter.options}
+      initialValues={initialSubject}
+      contentPlacementOffset={FILTER_DROPDOWN_OFFSET}
+    />
+  ) : null;
+
+  const levelsFilterElement = levelsFilter ? (
+    <SelectMultipleFilter
+      id={'SearchFilters.levelsFilter'}
+      name="levels"
+      urlParam={levelsFilter.paramName}
+      label={'Level'}
+      onSubmit={handleSelectMultipleFilter}
+      showAsPopup
+      options={levelsFilter.options}
+      initialValues={initialLevel}
+      contentPlacementOffset={FILTER_DROPDOWN_OFFSET}
+    />
+  ) : null;
+
+  const teachingHoursFilterElement = teachingHoursFilter ? (
+    <SelectSingleFilter
+      urlParam={teachingHoursFilter.paramName}
+      label={'Teaching Hours'}
+      onSelect={handleSelectSingleFilter}
+      showAsPopup
+      options={teachingHoursFilter.options}
+      initialValue={initialTeachingHour}
+      contentPlacementOffset={FILTER_DROPDOWN_OFFSET}
+    />
+  ) : null;
 
   const toggleSearchFiltersPanelButtonClasses =
     isSearchFiltersPanelOpen || searchFiltersPanelSelectedCount > 0
@@ -212,6 +285,9 @@ const SearchFiltersComponent = props => {
         {priceFilterElement}
         {dateRangeFilterElement}
         {keywordFilterElement}
+        {subjectsFilterElement}
+        {levelsFilterElement}
+        {teachingHoursFilterElement}
         {toggleSearchFiltersPanelButton}
       </div>
 

@@ -58,6 +58,9 @@ export class SearchPageComponent extends Component {
       priceFilterConfig,
       dateRangeFilterConfig,
       keywordFilterConfig,
+      subjects,
+      levels,
+      teachingHours,
     } = this.props;
 
     // Note: "category" and "amenities" filters are not actually filtering anything by default.
@@ -85,6 +88,18 @@ export class SearchPageComponent extends Component {
       keywordFilter: {
         paramName: 'keywords',
         config: keywordFilterConfig,
+      },
+      subjectsFilter: {
+        paramName: 'pub_subjects',
+        options: subjects,
+      },
+      levelsFilter: {
+        paramName: 'pub_levels',
+        options: levels,
+      },
+      teachingHoursFilter: {
+        paramName: 'pub_teachingHours',
+        options: teachingHours,
       },
     };
   }
@@ -230,6 +245,9 @@ export class SearchPageComponent extends Component {
               priceFilter: filters.priceFilter,
               dateRangeFilter: filters.dateRangeFilter,
               keywordFilter: filters.keywordFilter,
+              subjectsFilter: filters.subjectsFilter,
+              levelsFilter: filters.levelsFilter,
+              teachingHoursFilter: filters.teachingHoursFilter,
             }}
             secondaryFilters={{
               categoryFilter: filters.categoryFilter,
@@ -281,6 +299,9 @@ SearchPageComponent.defaultProps = {
   amenities: config.custom.amenities,
   priceFilterConfig: config.custom.priceFilterConfig,
   dateRangeFilterConfig: config.custom.dateRangeFilterConfig,
+  subjects: config.custom.subjects,
+  levels: config.custom.levels,
+  teachingHours: config.custom.teachingHours,
   keywordFilterConfig: config.custom.keywordFilterConfig,
   activeListingId: null,
 };
@@ -305,6 +326,9 @@ SearchPageComponent.propTypes = {
     step: number.isRequired,
   }),
   dateRangeFilterConfig: shape({ active: bool.isRequired }),
+  subjects: array,
+  levels: array,
+  teachingHours: array,
 
   // from withRouter
   history: shape({

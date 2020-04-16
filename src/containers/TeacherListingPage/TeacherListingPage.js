@@ -408,9 +408,7 @@ export class TeacherListingPageComponent extends Component {
                   <SectionBioMaybe bio={description} />
 
                   <SectionSubjectMaybe subjectOptions={subjectConfig} levelOptions={levelConfig} publicData={publicData} />
-                  <SectionTeachingHoursMaybe teachingHours={publicData && publicData.hours} teachingHoursOptions={teachingHoursConfig} />
-                  {/* <SectionFeaturesMaybe options={amenitiesConfig} publicData={publicData} /> */}
-                  {/* <SectionRulesMaybe publicData={publicData} /> */}
+                  <SectionTeachingHoursMaybe teachingHours={publicData && publicData.teachingHours} teachingHoursOptions={teachingHoursConfig} />
                   <SectionMapMaybe
                     geolocation={geolocation}
                     publicData={publicData}

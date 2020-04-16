@@ -110,7 +110,7 @@ export const EditListingGeneralFormComponent = props => (
               <FieldRadioButton
                 key={item.key}
                 id={item.key}
-                name="hours"
+                name="teachingHours"
                 label={item.label}
                 value={item.key}
               />

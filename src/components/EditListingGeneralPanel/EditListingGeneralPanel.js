@@ -25,7 +25,7 @@ const EditListingGeneralPanel = props => {
   const classes = classNames(rootClassName || css.root, className);
   const currentListing = ensureOwnListing(listing);
   const { title, description, publicData } = currentListing.attributes;
-  const { subjects, levels, hours  } = publicData;
+  const { subjects, levels, teachingHours  } = publicData;
   const panelTitle = currentListing.id ? (
     <FormattedMessage
       id="EditListingGeneralPanel.title"
@@ -40,9 +40,9 @@ const EditListingGeneralPanel = props => {
       <h1 className={css.title}>{panelTitle}</h1>
       <EditListingGeneralForm
         className={css.form}
-        initialValues={{ name: title, bio: description, subjects, levels, hours}}
+        initialValues={{ name: title, bio: description, subjects, levels, teachingHours}}
         onSubmit={values => {
-          const { name, bio, subjects, levels, hours } = values;
+          const { name, bio, subjects, levels, teachingHours } = values;
           const updateValues = {
             title: name,
             description: bio,
@@ -50,7 +50,7 @@ const EditListingGeneralPanel = props => {
               isTeacher: true,
               subjects,
               levels,
-              hours,
+              teachingHours,
             },
           };
           onSubmit(updateValues);
