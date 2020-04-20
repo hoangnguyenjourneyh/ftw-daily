@@ -5,7 +5,6 @@ import { FormattedMessage } from 'react-intl';
 import { ensureOwnListing } from '../../util/data';
 import { ListingLink } from '..';
 import { EditListingGeneralForm } from '../../forms';
-import config from '../../config.js';
 
 import css from './EditListingGeneralPanel.css';
 
@@ -47,7 +46,7 @@ const EditListingGeneralPanel = props => {
             title: name,
             description: bio,
             publicData: {
-              isTeacher: true,
+              listingType: 'teacher',
               subjects,
               levels,
               teachingHours,
@@ -60,7 +59,6 @@ const EditListingGeneralPanel = props => {
         updated={panelUpdated}
         updateError={errors.updateListingError}
         updateInProgress={updateInProgress}
-        capacityOptions={config.custom.capacityOptions}
       />
     </div>
   );
@@ -77,10 +75,7 @@ EditListingGeneralPanel.defaultProps = {
 EditListingGeneralPanel.propTypes = {
   className: string,
   rootClassName: string,
-
-  // We cannot use propTypes.listing since the listing might be a draft.
   listing: object,
-
   onSubmit: func.isRequired,
   onChange: func.isRequired,
   submitButtonText: string.isRequired,

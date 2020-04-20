@@ -7,7 +7,7 @@ import { intlShape, injectIntl, FormattedMessage } from '../../util/reactIntl';
 import classNames from 'classnames';
 import { propTypes } from '../../util/types';
 import config from '../../config';
-import { Form, Button, FieldTextInput, FieldCheckboxGroup, FieldRadioButton } from '../../components';
+import { Form, Button, FieldTextInput, FieldCheckboxGroup, FieldRadioButtonGroup } from '../../components';
 import { required, maxLength, composeValidators } from '../../util/validators';
 
 import css from './EditListingGeneralForm.css';
@@ -104,18 +104,14 @@ export const EditListingGeneralFormComponent = props => (
             name="levels"
             options={config.custom.levels}
           />
-          <div>
-            <label> {hourMessage} </label>
-            {config.custom && config.custom.teachingHours.map( item => (
-              <FieldRadioButton
-                key={item.key}
-                id={item.key}
-                name="teachingHours"
-                label={item.label}
-                value={item.key}
-              />
-            ))}
-          </div>
+
+          <FieldRadioButtonGroup
+            className={css.hours}
+            label={hourMessage}
+            id="teachingHours"
+            name="teachingHours"
+            options={config.custom && config.custom.teachingHours}
+          />
           
           <Button
             className={css.submitButton}
@@ -133,8 +129,8 @@ export const EditListingGeneralFormComponent = props => (
 );
 
 EditListingGeneralFormComponent.defaultProps = {
-  selectedPlace: null,
   updateError: null,
+  className: null,
 };
 
 EditListingGeneralFormComponent.propTypes = {
@@ -144,6 +140,7 @@ EditListingGeneralFormComponent.propTypes = {
   updated: bool.isRequired,
   updateError: propTypes.error,
   updateInProgress: bool.isRequired,
+  className: string,
 };
 
 export default compose(injectIntl)(EditListingGeneralFormComponent);

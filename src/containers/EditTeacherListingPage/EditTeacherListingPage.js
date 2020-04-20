@@ -79,7 +79,6 @@ export const EditTeacherListingPageComponent = props => {
     stripeAccountFetched,
     stripeAccount,
     updateStripeAccountError,
-    isTeacherList,
   } = props;
   const { id, type, returnURLType } = params;
   const isNewURI = type === LISTING_PAGE_PARAM_TYPE_NEW;
@@ -209,7 +208,6 @@ export const EditTeacherListingPageComponent = props => {
             createStripeAccountError || updateStripeAccountError || fetchStripeAccountError
           }
           stripeAccountLinkError={getAccountLinkError}
-          isTeacherList={isTeacherList}
         />
       </Page>
     );
@@ -238,7 +236,6 @@ EditTeacherListingPageComponent.defaultProps = {
   listingDraft: null,
   notificationCount: 0,
   sendVerificationEmailError: null,
-  isTeacherList: false,
 };
 
 EditTeacherListingPageComponent.propTypes = {
@@ -273,7 +270,6 @@ EditTeacherListingPageComponent.propTypes = {
   stripeAccountFetched: bool,
   stripeAccount: object,
   scrollingDisabled: bool.isRequired,
-  isTeacherList: bool,
 
   /* from withRouter */
   history: shape({

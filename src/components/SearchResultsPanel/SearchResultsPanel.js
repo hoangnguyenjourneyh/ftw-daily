@@ -5,8 +5,8 @@ import { propTypes } from '../../util/types';
 import { ListingCard, PaginationLinks } from '../../components';
 import css from './SearchResultsPanel.css';
 
-const isTeacherListing = (list) => list && list.attributes && list.attributes.publicData 
-  && list.attributes.publicData.isTeacher && 'TeacherListingPage';
+const getRouteNameListing = (list) => list && list.attributes && list.attributes.publicData 
+  && (list.attributes.publicData.listingType === 'teacher') ? 'TeacherListingPage' : 'ListingPage';
  
 const SearchResultsPanel = props => {
   const { className, rootClassName, listings, pagination, search, setActiveListing } = props;
@@ -38,7 +38,7 @@ const SearchResultsPanel = props => {
         {listings.map(l => (
           <ListingCard
             className={css.listingCard}
-            routeName={isTeacherListing(l)}
+            routeName={getRouteNameListing(l)}
             key={l.id.uuid}
             listing={l}
             renderSizes={cardRenderSizes}

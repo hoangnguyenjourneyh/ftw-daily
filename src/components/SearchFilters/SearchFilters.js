@@ -83,6 +83,18 @@ const SearchFiltersComponent = props => {
     id: 'SearchFilters.keywordLabel',
   });
 
+  const subjectLabel = intl.formatMessage({
+    id: 'SearchFilters.subjectLabel',
+  });
+
+  const levelLabel = intl.formatMessage({
+    id: 'SearchFilters.levelLabel',
+  });
+
+  const teachingHourLabel = intl.formatMessage({
+    id: 'SearchFilters.teachingHourLabel',
+  });
+
   const initialPriceRange = priceFilter
     ? initialPriceRangeValue(urlQueryParams, priceFilter.paramName)
     : null;
@@ -103,7 +115,6 @@ const SearchFiltersComponent = props => {
 
   const initialTeachingHour = teachingHoursFilter
     ? initialValue(urlQueryParams, teachingHoursFilter.paramName) : null;
-    console.log('initialTeachingHour :', initialTeachingHour);
 
   const isKeywordFilterActive = !!initialKeyword;
   const handlePrice = (urlParam, range) => {
@@ -197,7 +208,7 @@ const SearchFiltersComponent = props => {
       id={'SearchFilters.subjectsFilter'}
       name="subjects"
       urlParam={subjectsFilter.paramName}
-      label={'Subject'}
+      label={subjectLabel}
       onSubmit={handleSelectMultipleFilter}
       showAsPopup
       options={subjectsFilter.options}
@@ -211,7 +222,7 @@ const SearchFiltersComponent = props => {
       id={'SearchFilters.levelsFilter'}
       name="levels"
       urlParam={levelsFilter.paramName}
-      label={'Level'}
+      label={levelLabel}
       onSubmit={handleSelectMultipleFilter}
       showAsPopup
       options={levelsFilter.options}
@@ -223,7 +234,7 @@ const SearchFiltersComponent = props => {
   const teachingHoursFilterElement = teachingHoursFilter ? (
     <SelectSingleFilter
       urlParam={teachingHoursFilter.paramName}
-      label={'Teaching Hours'}
+      label={teachingHourLabel}
       onSelect={handleSelectSingleFilter}
       showAsPopup
       options={teachingHoursFilter.options}
@@ -313,6 +324,9 @@ SearchFiltersComponent.defaultProps = {
   searchingInProgress: false,
   priceFilter: null,
   dateRangeFilter: null,
+  subjectsFilter: null,
+  levelsFilter: null,
+  teachingHoursFilter: null,
   isSearchFiltersPanelOpen: false,
   toggleSearchFiltersPanel: null,
   searchFiltersPanelSelectedCount: 0,
@@ -328,6 +342,9 @@ SearchFiltersComponent.propTypes = {
   onManageDisableScrolling: func.isRequired,
   priceFilter: propTypes.filterConfig,
   dateRangeFilter: propTypes.filterConfig,
+  subjectsFilter: propTypes.filterConfig,
+  levelsFilter: propTypes.filterConfig,
+  teachingHoursFilter: propTypes.filterConfig,
   isSearchFiltersPanelOpen: bool,
   toggleSearchFiltersPanel: func,
   searchFiltersPanelSelectedCount: number,

@@ -78,10 +78,10 @@ const tabCompleted = (tab, listing) => {
     price,
     publicData,
   } = listing.attributes;
-  const generalData = description && title && publicData && publicData.subjects && publicData.levels && publicData.teachingHours;
+  const isFullGeneralData = description && title && publicData && publicData.subjects && publicData.levels && publicData.teachingHours;
   switch (tab) {
     case GENERAL:
-      return !!(generalData);
+      return !!(isFullGeneralData);
     case LOCATION:
       return !!(geolocation && publicData && publicData.location && publicData.location.address);
     case PRICING:
@@ -255,7 +255,6 @@ class EditTeacherListingWizard extends Component {
       stripeAccountError,
       stripeAccountLinkError,
       currentUser,
-      isTeacherList,
       ...rest
     } = this.props;
 
@@ -459,7 +458,6 @@ EditTeacherListingWizard.defaultProps = {
   fetchStripeAccountError: null,
   stripeAccountError: null,
   stripeAccountLinkError: null,
-  isTeacherList: false,
 };
 
 EditTeacherListingWizard.propTypes = {
@@ -475,7 +473,6 @@ EditTeacherListingWizard.propTypes = {
   }).isRequired,
   stripeAccount: object,
   stripeAccountFetched: bool,
-  isTeacherList: bool,
 
   // We cannot use propTypes.listing since the listing might be a draft.
   listing: shape({
