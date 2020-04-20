@@ -503,4 +503,8 @@ export const DATE_TYPE_DATETIME = 'datetime';
 
 propTypes.dateType = oneOf([DATE_TYPE_DATE, DATE_TYPE_DATETIME]);
 
+export const listingTypes = {
+  teacher: 'teacher',
+}
+
 export { propTypes };

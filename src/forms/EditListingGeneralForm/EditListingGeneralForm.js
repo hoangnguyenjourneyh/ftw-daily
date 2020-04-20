@@ -110,7 +110,7 @@ export const EditListingGeneralFormComponent = props => (
             label={hourMessage}
             id="teachingHours"
             name="teachingHours"
-            options={config.custom && config.custom.teachingHours}
+            options={config.custom.teachingHours}
           />
           
           <Button

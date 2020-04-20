@@ -1,5 +1,5 @@
 import React from 'react';
-import { string } from 'prop-types';
+import { string, arrayOf, shape, node } from 'prop-types';
 import { FieldArray } from 'react-final-form-arrays';
 import { FieldRadioButton, ValidationError } from '..';
 
@@ -8,7 +8,7 @@ const FieldRadioButtonRenderer = props => {
   return (
     <div className={className}>
       <label>{label}</label>
-      {options && options.map( item => (
+      {options.map( item => (
         <FieldRadioButton
           key={`${id}.${item.key}`}
           id={`${id}.${item.key}`}
@@ -20,6 +20,24 @@ const FieldRadioButtonRenderer = props => {
       <ValidationError fieldMeta={{ ...meta }} />
     </div>
   );  
+}
+
+FieldRadioButtonRenderer.defaultProps = {
+  options: [],
+  label: null,
+  className: null,
+}
+
+FieldRadioButtonRenderer.propTypes = {
+  label: node,
+  className: string,
+  id: string.isRequired,
+  options: arrayOf(
+    shape({
+      key: string.isRequired,
+      label: node.isRequired,
+    })
+  ).isRequired,
 }
 
 const FieldRadioButtonGroup = props => <FieldArray component={FieldRadioButtonRenderer} {...props} />;

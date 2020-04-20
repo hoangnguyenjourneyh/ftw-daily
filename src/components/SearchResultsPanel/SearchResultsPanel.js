@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { propTypes } from '../../util/types';
+import { propTypes, listingTypes } from '../../util/types';
 import { ListingCard, PaginationLinks } from '../../components';
 import css from './SearchResultsPanel.css';
 
 const getRouteNameListing = (list) => list && list.attributes && list.attributes.publicData 
-  && (list.attributes.publicData.listingType === 'teacher') ? 'TeacherListingPage' : 'ListingPage';
+  && (list.attributes.publicData.listingType === listingTypes.teacher) ? 'TeacherListingPage' : 'ListingPage';
  
 const SearchResultsPanel = props => {
   const { className, rootClassName, listings, pagination, search, setActiveListing } = props;

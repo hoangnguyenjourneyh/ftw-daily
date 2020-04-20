@@ -5,6 +5,7 @@ import { FormattedMessage } from 'react-intl';
 import { ensureOwnListing } from '../../util/data';
 import { ListingLink } from '..';
 import { EditListingGeneralForm } from '../../forms';
+import { listingTypes } from '../../util/types';
 
 import css from './EditListingGeneralPanel.css';
 
@@ -46,7 +47,7 @@ const EditListingGeneralPanel = props => {
             title: name,
             description: bio,
             publicData: {
-              listingType: 'teacher',
+              listingType: listingTypes.teacher,
               subjects,
               levels,
               teachingHours,
