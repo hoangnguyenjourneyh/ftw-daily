@@ -10,7 +10,7 @@ import {
 } from '../../util/test-data';
 import {
   TRANSITION_ACCEPT,
-  TRANSITION_COMPLETE,
+  TRANSITION_COMPLETE_FROM_ACCEPTED,
   TRANSITION_DECLINE,
   TRANSITION_EXPIRE_REVIEW_PERIOD,
   TRANSITION_REQUEST_PAYMENT,
@@ -147,7 +147,7 @@ export const WithMessagesTransitionsAndReviews = {
         createTxTransition({
           createdAt: new Date(Date.UTC(2017, 10, 9, 10, 34)),
           by: TX_TRANSITION_ACTOR_PROVIDER,
-          transition: TRANSITION_COMPLETE,
+          transition: TRANSITION_COMPLETE_FROM_ACCEPTED,
         }),
         createTxTransition({
           createdAt: new Date(Date.UTC(2017, 10, 9, 11, 34)),
@@ -287,7 +287,7 @@ class PagedFeed extends Component {
     const trans4 = createTxTransition({
       createdAt: dates[5],
       by: TX_TRANSITION_ACTOR_CUSTOMER,
-      transition: TRANSITION_COMPLETE,
+      transition: TRANSITION_COMPLETE_FROM_ACCEPTED,
     });
 
     // First message timestamp is interleaved between the first two
@@ -300,7 +300,7 @@ class PagedFeed extends Component {
 
     const transaction = createTransaction({
       id: 'tx1',
-      lastTransition: TRANSITION_COMPLETE,
+      lastTransition: TRANSITION_COMPLETE_FROM_ACCEPTED,
       lastTransitionedAt: dates[5],
       transitions: [trans1, trans2, trans3, trans4],
       listing: createListing('listing'),

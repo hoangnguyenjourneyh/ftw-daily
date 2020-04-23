@@ -47,6 +47,10 @@ export const DECLINE_SALE_REQUEST = 'app/TransactionPage/DECLINE_SALE_REQUEST';
 export const DECLINE_SALE_SUCCESS = 'app/TransactionPage/DECLINE_SALE_SUCCESS';
 export const DECLINE_SALE_ERROR = 'app/TransactionPage/DECLINE_SALE_ERROR';
 
+export const CANCEL_BOOKING_REQUEST = 'app/TransactionPage/CANCEL_BOOKING_REQUEST';
+export const CANCEL_BOOKING_SUCCESS = 'app/TransactionPage/CANCEL_BOOKING_SUCCESS';
+export const CANCEL_BOOKING_ERROR = 'app/TransactionPage/CANCEL_BOOKING_ERROR';
+
 export const FETCH_MESSAGES_REQUEST = 'app/TransactionPage/FETCH_MESSAGES_REQUEST';
 export const FETCH_MESSAGES_SUCCESS = 'app/TransactionPage/FETCH_MESSAGES_SUCCESS';
 export const FETCH_MESSAGES_ERROR = 'app/TransactionPage/FETCH_MESSAGES_ERROR';
@@ -90,6 +94,8 @@ const initialState = {
   fetchTransitionsInProgress: false,
   fetchTransitionsError: null,
   processTransitions: null,
+  cancelBookingInProgress: false,
+  cancelBookingError: null,
 };
 
 // Merge entity arrays using ids, so that conflicting items in newer array (b) overwrite old values (a).
@@ -126,19 +132,26 @@ export default function checkoutPageReducer(state = initialState, action = {}) {
       return { ...state, fetchTransitionsInProgress: false, fetchTransitionsError: payload };
 
     case ACCEPT_SALE_REQUEST:
-      return { ...state, acceptInProgress: true, acceptSaleError: null, declineSaleError: null };
+      return { ...state, acceptInProgress: true, acceptSaleError: null, declineSaleError: null, cancelBookingError: null };
     case ACCEPT_SALE_SUCCESS:
       return { ...state, acceptInProgress: false };
     case ACCEPT_SALE_ERROR:
       return { ...state, acceptInProgress: false, acceptSaleError: payload };
 
     case DECLINE_SALE_REQUEST:
-      return { ...state, declineInProgress: true, declineSaleError: null, acceptSaleError: null };
+      return { ...state, declineInProgress: true, declineSaleError: null, acceptSaleError: null, cancelBookingError: null };
     case DECLINE_SALE_SUCCESS:
       return { ...state, declineInProgress: false };
     case DECLINE_SALE_ERROR:
       return { ...state, declineInProgress: false, declineSaleError: payload };
 
+    case CANCEL_BOOKING_REQUEST:
+      return { ...state, cancelBookingInProgress: true, declineSaleError: null, acceptSaleError: null, cancelBookingError: null };
+    case CANCEL_BOOKING_SUCCESS:
+      return { ...state, cancelBookingInProgress: false };
+    case CANCEL_BOOKING_ERROR:
+      return { ...state, cancelBookingInProgress: false, cancelBookingError: payload };
+      
     case FETCH_MESSAGES_REQUEST:
       return { ...state, fetchMessagesInProgress: true, fetchMessagesError: null };
     case FETCH_MESSAGES_SUCCESS: {
@@ -222,6 +235,10 @@ const acceptSaleError = e => ({ type: ACCEPT_SALE_ERROR, error: true, payload: e
 const declineSaleRequest = () => ({ type: DECLINE_SALE_REQUEST });
 const declineSaleSuccess = () => ({ type: DECLINE_SALE_SUCCESS });
 const declineSaleError = e => ({ type: DECLINE_SALE_ERROR, error: true, payload: e });
+
+const cancelBookingRequest = () => ({ type: CANCEL_BOOKING_REQUEST });
+const cancelBookingSuccess = () => ({ type: CANCEL_BOOKING_SUCCESS });
+const cancelBookingError = e => ({ type: CANCEL_BOOKING_ERROR, error: true, payload: e });
 
 const fetchMessagesRequest = () => ({ type: FETCH_MESSAGES_REQUEST });
 const fetchMessagesSuccess = (messages, pagination) => ({
@@ -369,6 +386,29 @@ export const declineSale = id => (dispatch, getState, sdk) => {
       throw e;
     });
 };
+
+export const cancelBooking = (id, transition)  => (dispatch, getState, sdk) => {
+  if (acceptOrDeclineInProgress(getState())) {
+    return Promise.reject(new Error('Accept or decline already in progress'));
+  }
+  dispatch(cancelBookingRequest());
+
+  return sdk.transactions
+    .transition({ id, transition, params: {} }, { expand: true })
+    .then(response => {
+      dispatch(addMarketplaceEntities(response));
+      dispatch(cancelBookingSuccess());
+      return response;
+    })
+    .catch(e => {
+      dispatch(cancelBookingError(storableError(e)));
+      log.error(e, 'cancel-booking-failed', {
+        txId: id,
+        transition: transition,
+      });
+      throw e;
+    });
+}
 
 const fetchMessages = (txId, page) => (dispatch, getState, sdk) => {
   const paging = { page, per_page: MESSAGES_PAGE_SIZE };

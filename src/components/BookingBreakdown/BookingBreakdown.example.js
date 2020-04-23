@@ -2,10 +2,10 @@ import Decimal from 'decimal.js';
 import { types as sdkTypes } from '../../util/sdkLoader';
 import {
   TRANSITION_ACCEPT,
-  TRANSITION_CANCEL,
-  TRANSITION_COMPLETE,
+  TRANSITION_OPERATOR_CANCEL_FROM_ACCEPTED,
+  TRANSITION_COMPLETE_FROM_ACCEPTED,
   TRANSITION_DECLINE,
-  TRANSITION_EXPIRE,
+  TRANSITION_EXPIRE_FROM_PREAUTHORIZED,
   TRANSITION_REQUEST_PAYMENT,
   TRANSITION_CONFIRM_PAYMENT,
   TX_TRANSITION_ACTOR_CUSTOMER,
@@ -329,7 +329,7 @@ export const ProviderSaleAutoDeclined = {
     unitType: LINE_ITEM_NIGHT,
     dateType: DATE_TYPE_DATETIME,
     transaction: exampleTransaction({
-      lastTransition: TRANSITION_EXPIRE,
+      lastTransition: TRANSITION_EXPIRE_FROM_PREAUTHORIZED,
       payinTotal: new Money(4500, CURRENCY),
       payoutTotal: new Money(2500, CURRENCY),
       lineItems: [
@@ -364,7 +364,7 @@ export const ProviderSaleDelivered = {
     unitType: LINE_ITEM_NIGHT,
     dateType: DATE_TYPE_DATETIME,
     transaction: exampleTransaction({
-      lastTransition: TRANSITION_COMPLETE,
+      lastTransition: TRANSITION_COMPLETE_FROM_ACCEPTED,
       payinTotal: new Money(4500, CURRENCY),
       payoutTotal: new Money(2500, CURRENCY),
       lineItems: [
@@ -399,7 +399,7 @@ export const ProviderSaleCanceled = {
     unitType: LINE_ITEM_NIGHT,
     dateType: DATE_TYPE_DATETIME,
     transaction: exampleTransaction({
-      lastTransition: TRANSITION_CANCEL,
+      lastTransition: TRANSITION_OPERATOR_CANCEL_FROM_ACCEPTED,
       payinTotal: new Money(0, CURRENCY),
       payoutTotal: new Money(0, CURRENCY),
       lineItems: [

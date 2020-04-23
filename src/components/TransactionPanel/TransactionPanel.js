@@ -12,6 +12,13 @@ import {
   txIsPaymentPending,
   txIsRequested,
   txHasBeenDelivered,
+  txIsRefundPeriodExpire,
+  TRANSITION_CUSTOMER_CANCEL_FROM_ACCEPTED,
+  TRANSITION_PROVIDER_CANCEL_FROM_BERP,
+  TRANSITION_CUSTOMER_CANCEL_FROM_BERP,
+  TRANSITION_PROVIDER_CANCEL_FROM_ACCEPTED,
+  TRANSITION_CUSTOMER_CANCEL_FROM_PENDING_PAYMENT,
+  TRANSITION_CUSTOMER_CANCEL_FROM_PREAUTHORIZED,
 } from '../../util/transaction';
 import { LINE_ITEM_NIGHT, LINE_ITEM_DAY, propTypes } from '../../util/types';
 import {
@@ -39,6 +46,7 @@ import DetailCardHeadingsMaybe from './DetailCardHeadingsMaybe';
 import DetailCardImage from './DetailCardImage';
 import FeedSection from './FeedSection';
 import SaleActionButtonsMaybe from './SaleActionButtonsMaybe';
+import CancelButtonMaybe from './CancelButtonMaybe';
 import PanelHeading, {
   HEADING_ENQUIRED,
   HEADING_PAYMENT_PENDING,
@@ -160,6 +168,19 @@ export class TransactionPanelComponent extends Component {
     }
   }
 
+  onHandleCancel = (currentTransactionId, stateData) => {
+    const { onCancel, transactionRole } = this.props;
+    const isCustomer = transactionRole === 'customer';
+    const isProvider = transactionRole === 'provider';
+    let transition = '';
+    if (isCustomer) {
+      transition = stateData.customerCancelTransition || '';
+    } else if (isProvider) {
+      transition = stateData.providerCancelTransition || '';
+    }
+    onCancel(currentTransactionId, transition);
+  }
+
   render() {
     const {
       rootClassName,
@@ -185,8 +206,10 @@ export class TransactionPanelComponent extends Component {
       onDeclineSale,
       acceptInProgress,
       declineInProgress,
+      cancelInProgress,
       acceptSaleError,
       declineSaleError,
+      cancelError,
       onSubmitBookingRequest,
       timeSlots,
       fetchTimeSlotsError,
@@ -226,6 +249,7 @@ export class TransactionPanelComponent extends Component {
         return {
           headingState: HEADING_PAYMENT_PENDING,
           showDetailCardHeadings: isCustomer,
+          customerCancelTransition: TRANSITION_CUSTOMER_CANCEL_FROM_PENDING_PAYMENT,
         };
       } else if (txIsPaymentExpired(tx)) {
         return {
@@ -237,12 +261,26 @@ export class TransactionPanelComponent extends Component {
           headingState: HEADING_REQUESTED,
           showDetailCardHeadings: isCustomer,
           showSaleButtons: isProvider && !isCustomerBanned,
+          showCancelButton: isCustomer,
+          customerCancelTransition: TRANSITION_CUSTOMER_CANCEL_FROM_PREAUTHORIZED,
         };
       } else if (txIsAccepted(tx)) {
         return {
           headingState: HEADING_ACCEPTED,
           showDetailCardHeadings: isCustomer,
           showAddress: isCustomer,
+          showCancelButton: true,
+          customerCancelTransition: TRANSITION_CUSTOMER_CANCEL_FROM_ACCEPTED,
+          providerCancelTransition: TRANSITION_PROVIDER_CANCEL_FROM_ACCEPTED,
+        };
+      } else if (txIsRefundPeriodExpire(tx)) {
+        return {
+          headingState: HEADING_ACCEPTED,
+          showDetailCardHeadings: isCustomer,
+          showAddress: isCustomer,
+          showCancelButton: true,
+          customerCancelTransition: TRANSITION_CUSTOMER_CANCEL_FROM_BERP,
+          providerCancelTransition: TRANSITION_PROVIDER_CANCEL_FROM_BERP,
         };
       } else if (txIsDeclined(tx)) {
         return {
@@ -264,6 +302,8 @@ export class TransactionPanelComponent extends Component {
         return { headingState: 'unknown' };
       }
     };
+
+    console.log('currentTransaction :', currentTransaction);
     const stateData = stateDataFn(currentTransaction);
 
     const deletedListingTitle = intl.formatMessage({
@@ -312,6 +352,15 @@ export class TransactionPanelComponent extends Component {
         onDeclineSale={() => onDeclineSale(currentTransaction.id)}
       />
     );
+
+    const cancelButton = (
+      <CancelButtonMaybe
+        showButtons={stateData.showCancelButton}
+        cancelInProgress={cancelInProgress}
+        cancelError={cancelError}
+        onCancel={() => this.onHandleCancel(currentTransaction.id, stateData)}
+      />
+    )
 
     const showSendMessageForm =
       !isCustomerBanned && !isCustomerDeleted && !isProviderBanned && !isProviderDeleted;
@@ -411,6 +460,9 @@ export class TransactionPanelComponent extends Component {
             {stateData.showSaleButtons ? (
               <div className={css.mobileActionButtons}>{saleButtons}</div>
             ) : null}
+            {stateData.showCancelButton ? (
+                <div className={css.mobileActionButtons}>{cancelButton}</div>
+              ) : null}
           </div>
 
           <div className={css.asideDesktop}>
@@ -454,6 +506,9 @@ export class TransactionPanelComponent extends Component {
 
               {stateData.showSaleButtons ? (
                 <div className={css.desktopActionButtons}>{saleButtons}</div>
+              ) : null}
+              {stateData.showCancelButton ? (
+                <div className={css.desktopActionButtons}>{cancelButton}</div>
               ) : null}
             </div>
           </div>

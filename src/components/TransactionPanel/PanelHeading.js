@@ -11,6 +11,7 @@ export const HEADING_PAYMENT_PENDING = 'pending-payment';
 export const HEADING_PAYMENT_EXPIRED = 'payment-expired';
 export const HEADING_REQUESTED = 'requested';
 export const HEADING_ACCEPTED = 'accepted';
+export const HEADING_REFUND_EXPIRED = 'refund-expired';
 export const HEADING_DECLINED = 'declined';
 export const HEADING_CANCELED = 'canceled';
 export const HEADING_DELIVERED = 'deliveded';

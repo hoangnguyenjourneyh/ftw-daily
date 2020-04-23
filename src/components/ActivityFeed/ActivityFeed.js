@@ -8,10 +8,10 @@ import { formatDate } from '../../util/dates';
 import { ensureTransaction, ensureUser, ensureListing } from '../../util/data';
 import {
   TRANSITION_ACCEPT,
-  TRANSITION_CANCEL,
-  TRANSITION_COMPLETE,
+  TRANSITION_OPERATOR_CANCEL_FROM_ACCEPTED,
+  TRANSITION_COMPLETE_FROM_ACCEPTED,
   TRANSITION_DECLINE,
-  TRANSITION_EXPIRE,
+  TRANSITION_EXPIRE_FROM_PREAUTHORIZED,
   TRANSITION_CONFIRM_PAYMENT,
   TRANSITION_REVIEW_1_BY_CUSTOMER,
   TRANSITION_REVIEW_1_BY_PROVIDER,
@@ -27,6 +27,13 @@ import {
   txRoleIsCustomer,
   getUserTxRole,
   isRelevantPastTransition,
+  TRANSITION_COMPLETE_FROM_BERP,
+  TRANSITION_CUSTOMER_CANCEL_FROM_ACCEPTED,
+  TRANSITION_PROVIDER_CANCEL_FROM_ACCEPTED,
+  TRANSITION_OPERATOR_CANCEL_FROM_BERP,
+  TRANSITION_CUSTOMER_CANCEL_FROM_BERP,
+  TRANSITION_PROVIDER_CANCEL_FROM_BERP,
+  TRANSITION_EXPIRE_2_REFUND_PERIOD,
 } from '../../util/transaction';
 import { propTypes } from '../../util/types';
 import * as log from '../../util/log';
@@ -137,15 +144,23 @@ const resolveTransitionMessage = (
       ) : (
         <FormattedMessage id="ActivityFeed.transitionDecline" values={{ displayName }} />
       );
-    case TRANSITION_EXPIRE:
+    case TRANSITION_EXPIRE_FROM_PREAUTHORIZED:
       return txRoleIsProvider(ownRole) ? (
         <FormattedMessage id="ActivityFeed.ownTransitionExpire" />
       ) : (
         <FormattedMessage id="ActivityFeed.transitionExpire" values={{ displayName }} />
       );
-    case TRANSITION_CANCEL:
+    case TRANSITION_EXPIRE_2_REFUND_PERIOD:
+      return <FormattedMessage id="ActivityFeed.transitionExpire2RefundPeriod" />
+    case TRANSITION_OPERATOR_CANCEL_FROM_ACCEPTED:
+    case TRANSITION_CUSTOMER_CANCEL_FROM_ACCEPTED:
+    case TRANSITION_PROVIDER_CANCEL_FROM_ACCEPTED:
+    case TRANSITION_OPERATOR_CANCEL_FROM_BERP:
+    case TRANSITION_CUSTOMER_CANCEL_FROM_BERP:
+    case TRANSITION_PROVIDER_CANCEL_FROM_BERP:
       return <FormattedMessage id="ActivityFeed.transitionCancel" />;
-    case TRANSITION_COMPLETE:
+    case TRANSITION_COMPLETE_FROM_ACCEPTED:
+    case TRANSITION_COMPLETE_FROM_BERP:
       // Show the leave a review link if the state is delivered and if the current user is the first to leave a review
       const reviewPeriodJustStarted = txIsDelivered(transaction);
 
@@ -395,6 +410,7 @@ export const ActivityFeedComponent = props => {
   };
 
   const transitionListItem = transition => {
+    console.log('transition :>> ', transition);
     if (isRelevantPastTransition(transition.transition)) {
       return (
         <li key={transition.transition} className={css.transitionItem}>
