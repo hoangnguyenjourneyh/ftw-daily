@@ -17,7 +17,7 @@
   "ActivityFeed.transitionExpire": "Booking request expired. { displayName } did not reply on time.",
   "ActivityFeed.transitionRequest": "{ displayName } requested to book { listingTitle }.",
   "ActivityFeed.transitionReview": "{ displayName } left a review for you. { reviewLink }",
-  "ActivityFeed.transitionExpire2RefundPeriod": "Booking expired refund period. The customer won't be refunded anymore",
+  "ActivityFeed.transitionExpireRefundPeriod": "Booking expired refund period. The customer won't be refunded anymore",
   "AuthenticationPage.emailAlreadyInUse": "An account with this email address already exists. Try logging in instead.",
   "AuthenticationPage.fixEmail": "Whoops, typo in your email? {fixEmailLink}.",
   "AuthenticationPage.fixEmailLinkText": "Fix it",

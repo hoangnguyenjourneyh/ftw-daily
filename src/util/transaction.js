@@ -40,9 +40,10 @@ export const TRANSITION_DECLINE = 'transition/provider-decline';
 // The backend automatically expire the transaction.
 export const TRANSITION_EXPIRE_FROM_PREAUTHORIZED = 'transition/expire-from-preauthorized';
 export const TRANSITION_CUSTOMER_CANCEL_FROM_PREAUTHORIZED = 'transition/customer-cancel-from-preauthorized';
+export const TRANSITION_EXPIRE_1_REFUND_PERIOD = 'transition/expire-1-refund-period';
 
 // Admin can also cancel the transition.
-// export const TRANSITION_CANCEL = 'transition/cancel';
+export const TRANSITION_EXPIRE_CUSTOMER_CANCEL_FROM_ACCEPTED = 'transition/expire-customer-cancel-from-accepted';
 export const TRANSITION_OPERATOR_CANCEL_FROM_ACCEPTED = 'transition/operator-cancel-from-accepted';
 export const TRANSITION_CUSTOMER_CANCEL_FROM_ACCEPTED = 'transition/customer-cancel-from-accepted';
 export const TRANSITION_PROVIDER_CANCEL_FROM_ACCEPTED = 'transition/provider-cancel-from-accepted';
@@ -55,7 +56,16 @@ export const TRANSITION_OPERATOR_CANCEL_FROM_BERP = 'transition/operator-cancel-
 export const TRANSITION_CUSTOMER_CANCEL_FROM_BERP = 'transition/customer-cancel-from-BERP';
 export const TRANSITION_PROVIDER_CANCEL_FROM_BERP = 'transition/provider-cancel-from-BERP';
 export const TRANSITION_COMPLETE_FROM_BERP = 'transition/complete-from-BERP';
+export const TRANSITION_EXPIRE_CUSTOMER_CANCEL_FROM_BERP = 'transition/expire-customer-cancel-from-BERP';
 
+export const TRANSITION_ACCEPT_FROM_BERP1 = 'transition/accept-from-BERP1';
+export const TRANSITION_CUSTOMER_CANCEL_FROM_BERP1 = 'transition/customer-cancel-from-BERP1';
+export const TRANSITION_PROVIDER_DECLINE_FROM_BERP1 = 'transition/provider-decline-from-BERP1';
+export const TRANSITION_EXPIRE_PAYMENT_FROM_BERP1 = 'transition/expire-payment-from-BERP1';
+
+export const TRANSITION_OPERATOR_CANCEL_FROM_ECC = 'transition/operator-cancel-from-ECC';
+export const TRANSITION_PROVIDER_CANCEL_FROM_ECC = 'transition/provider-cancel-from-ECC';
+export const TRANSITION_COMPLETE_FROM_ECC = 'transition/complete-from-ECC';
 // Reviews are given through transaction transitions. Review 1 can be
 // by provider or customer, and review 2 will be the other party of
 // the transaction.
@@ -66,8 +76,6 @@ export const TRANSITION_REVIEW_2_BY_CUSTOMER = 'transition/review-2-by-customer'
 export const TRANSITION_EXPIRE_CUSTOMER_REVIEW_PERIOD = 'transition/expire-customer-review-period';
 export const TRANSITION_EXPIRE_PROVIDER_REVIEW_PERIOD = 'transition/expire-provider-review-period';
 export const TRANSITION_EXPIRE_REVIEW_PERIOD = 'transition/expire-review-period';
-
-export const TRANSITION_PAY_PROVIDER = 'transition/pay-provider';
 
 /**
  * Actors
@@ -110,7 +118,8 @@ const STATE_REVIEWED = 'reviewed';
 const STATE_REVIEWED_BY_CUSTOMER = 'reviewed-by-customer';
 const STATE_REVIEWED_BY_PROVIDER = 'reviewed-by-provider';
 const STATE_BOOKING_EXPIRE_REFUND_PERIOD = 'booking-expire-refund-period';
-const STATE_COMPLETE_PAYOUT = 'completed-payout';
+const STATE_BOOKING_EXPIRE_REFUND_PERIOD_1 = 'booking-expire-refund-period-1';
+const STATE_EXPIRED_CUSTOMER_CANCEL = 'expired-customer-cancel'
 
 /**
  * Description of transaction process
@@ -159,18 +168,28 @@ const stateDescription = {
       on: {
         [TRANSITION_DECLINE]: STATE_DECLINED,
         [TRANSITION_EXPIRE_FROM_PREAUTHORIZED]: STATE_DECLINED,
+        [TRANSITION_EXPIRE_1_REFUND_PERIOD]: STATE_BOOKING_EXPIRE_REFUND_PERIOD_1,
         [TRANSITION_ACCEPT]: STATE_ACCEPTED,
         [TRANSITION_CUSTOMER_CANCEL_FROM_PREAUTHORIZED]: STATE_DECLINED,
       },
     },
 
     [STATE_DECLINED]: {},
+    [STATE_BOOKING_EXPIRE_REFUND_PERIOD_1]: {
+      on: {
+        [TRANSITION_EXPIRE_PAYMENT_FROM_BERP1]: STATE_DECLINED,
+        [TRANSITION_PROVIDER_DECLINE_FROM_BERP1]: STATE_DECLINED,
+        [TRANSITION_CUSTOMER_CANCEL_FROM_BERP1]: STATE_CANCELED,
+        [TRANSITION_ACCEPT_FROM_BERP1]: STATE_ACCEPTED,
+      }
+    },
     [STATE_ACCEPTED]: {
       on: {
         [TRANSITION_OPERATOR_CANCEL_FROM_ACCEPTED]: STATE_CANCELED,
         [TRANSITION_CUSTOMER_CANCEL_FROM_ACCEPTED]: STATE_CANCELED,
         [TRANSITION_PROVIDER_CANCEL_FROM_ACCEPTED]: STATE_CANCELED,
         [TRANSITION_EXPIRE_2_REFUND_PERIOD]: STATE_BOOKING_EXPIRE_REFUND_PERIOD,
+        [TRANSITION_EXPIRE_CUSTOMER_CANCEL_FROM_ACCEPTED]: STATE_EXPIRED_CUSTOMER_CANCEL,
         [TRANSITION_COMPLETE_FROM_ACCEPTED]: STATE_DELIVERED,
       },
     },
@@ -182,6 +201,14 @@ const stateDescription = {
         [TRANSITION_CUSTOMER_CANCEL_FROM_BERP]: STATE_CANCELED,
         [TRANSITION_PROVIDER_CANCEL_FROM_BERP]: STATE_CANCELED,
         [TRANSITION_COMPLETE_FROM_BERP]: STATE_DELIVERED,
+        [TRANSITION_EXPIRE_CUSTOMER_CANCEL_FROM_BERP]: STATE_EXPIRED_CUSTOMER_CANCEL,
+      }
+    },
+    [STATE_EXPIRED_CUSTOMER_CANCEL]: {
+      on: {
+        [TRANSITION_OPERATOR_CANCEL_FROM_ECC]: STATE_CANCELED,
+        [TRANSITION_PROVIDER_CANCEL_FROM_ECC]: STATE_CANCELED,
+        [TRANSITION_COMPLETE_FROM_ECC]: STATE_DELIVERED,
       }
     },
     [STATE_DELIVERED]: {
@@ -189,10 +216,8 @@ const stateDescription = {
         [TRANSITION_EXPIRE_REVIEW_PERIOD]: STATE_REVIEWED,
         [TRANSITION_REVIEW_1_BY_CUSTOMER]: STATE_REVIEWED_BY_CUSTOMER,
         [TRANSITION_REVIEW_1_BY_PROVIDER]: STATE_REVIEWED_BY_PROVIDER,
-        [TRANSITION_PAY_PROVIDER]: STATE_COMPLETE_PAYOUT,
       },
     },
-    [STATE_COMPLETE_PAYOUT]: {},
     [STATE_REVIEWED_BY_CUSTOMER]: {
       on: {
         [TRANSITION_REVIEW_2_BY_PROVIDER]: STATE_REVIEWED,
@@ -267,11 +292,17 @@ export const txIsPaymentExpired = tx =>
 export const txIsRequested = tx =>
   getTransitionsToState(STATE_PREAUTHORIZED).includes(txLastTransition(tx));
 
+export const txIsRefundPeriodExpire1 = tx =>
+  getTransitionsToState(STATE_BOOKING_EXPIRE_REFUND_PERIOD_1).includes(txLastTransition(tx));
+
 export const txIsAccepted = tx =>
   getTransitionsToState(STATE_ACCEPTED).includes(txLastTransition(tx));
 
 export const txIsRefundPeriodExpire = tx =>
   getTransitionsToState(STATE_BOOKING_EXPIRE_REFUND_PERIOD).includes(txLastTransition(tx));
+
+export const txIsExpiredCustomerCancel = tx =>
+  getTransitionsToState(STATE_EXPIRED_CUSTOMER_CANCEL).includes(txLastTransition(tx));
 
 export const txIsDeclined = tx =>
   getTransitionsToState(STATE_DECLINED).includes(txLastTransition(tx));
@@ -281,9 +312,6 @@ export const txIsCanceled = tx =>
 
 export const txIsDelivered = tx =>
   getTransitionsToState(STATE_DELIVERED).includes(txLastTransition(tx));
-  
-export const txIsCompletePayout = tx =>
-  getTransitionsToState(STATE_COMPLETE_PAYOUT).includes(txLastTransition(tx));
 
 const firstReviewTransitions = [
   ...getTransitionsToState(STATE_REVIEWED_BY_CUSTOMER),
@@ -353,7 +381,17 @@ export const isRelevantPastTransition = transition => {
     TRANSITION_OPERATOR_CANCEL_FROM_BERP,
     TRANSITION_CUSTOMER_CANCEL_FROM_BERP,
     TRANSITION_PROVIDER_CANCEL_FROM_BERP,
+    TRANSITION_CUSTOMER_CANCEL_FROM_BERP1,
+    TRANSITION_ACCEPT_FROM_BERP1,
+    TRANSITION_PROVIDER_DECLINE_FROM_BERP1,
+    TRANSITION_EXPIRE_PAYMENT_FROM_BERP1,
     TRANSITION_EXPIRE_2_REFUND_PERIOD,
+    TRANSITION_EXPIRE_1_REFUND_PERIOD,
+    TRANSITION_EXPIRE_CUSTOMER_CANCEL_FROM_ACCEPTED,
+    TRANSITION_EXPIRE_CUSTOMER_CANCEL_FROM_BERP,
+    TRANSITION_COMPLETE_FROM_ECC,
+    TRANSITION_OPERATOR_CANCEL_FROM_ECC,
+    TRANSITION_PROVIDER_CANCEL_FROM_ECC,
   ].includes(transition);
 };
 

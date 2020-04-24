@@ -339,14 +339,14 @@ export const fetchTransaction = (id, txRole) => (dispatch, getState, sdk) => {
     });
 };
 
-export const acceptSale = id => (dispatch, getState, sdk) => {
+export const acceptSale = (id, transition = TRANSITION_ACCEPT) => (dispatch, getState, sdk) => {
   if (acceptOrDeclineInProgress(getState())) {
     return Promise.reject(new Error('Accept or decline already in progress'));
   }
   dispatch(acceptSaleRequest());
 
   return sdk.transactions
-    .transition({ id, transition: TRANSITION_ACCEPT, params: {} }, { expand: true })
+    .transition({ id, transition, params: {} }, { expand: true })
     .then(response => {
       dispatch(addMarketplaceEntities(response));
       dispatch(acceptSaleSuccess());
@@ -357,20 +357,20 @@ export const acceptSale = id => (dispatch, getState, sdk) => {
       dispatch(acceptSaleError(storableError(e)));
       log.error(e, 'accept-sale-failed', {
         txId: id,
-        transition: TRANSITION_ACCEPT,
+        transition,
       });
       throw e;
     });
 };
 
-export const declineSale = id => (dispatch, getState, sdk) => {
+export const declineSale = (id, transition = TRANSITION_DECLINE) => (dispatch, getState, sdk) => {
   if (acceptOrDeclineInProgress(getState())) {
     return Promise.reject(new Error('Accept or decline already in progress'));
   }
   dispatch(declineSaleRequest());
 
   return sdk.transactions
-    .transition({ id, transition: TRANSITION_DECLINE, params: {} }, { expand: true })
+    .transition({ id, transition, params: {} }, { expand: true })
     .then(response => {
       dispatch(addMarketplaceEntities(response));
       dispatch(declineSaleSuccess());
@@ -381,7 +381,7 @@ export const declineSale = id => (dispatch, getState, sdk) => {
       dispatch(declineSaleError(storableError(e)));
       log.error(e, 'reject-sale-failed', {
         txId: id,
-        transition: TRANSITION_DECLINE,
+        transition,
       });
       throw e;
     });

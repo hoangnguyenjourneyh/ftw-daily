@@ -13,12 +13,20 @@ import {
   txIsRequested,
   txHasBeenDelivered,
   txIsRefundPeriodExpire,
+  txIsRefundPeriodExpire1,
   TRANSITION_CUSTOMER_CANCEL_FROM_ACCEPTED,
   TRANSITION_PROVIDER_CANCEL_FROM_BERP,
   TRANSITION_CUSTOMER_CANCEL_FROM_BERP,
   TRANSITION_PROVIDER_CANCEL_FROM_ACCEPTED,
   TRANSITION_CUSTOMER_CANCEL_FROM_PENDING_PAYMENT,
   TRANSITION_CUSTOMER_CANCEL_FROM_PREAUTHORIZED,
+  TRANSITION_CUSTOMER_CANCEL_FROM_BERP1,
+  TRANSITION_ACCEPT_FROM_BERP1,
+  TRANSITION_PROVIDER_DECLINE_FROM_BERP1,
+  TRANSITION_DECLINE,
+  TRANSITION_ACCEPT,
+  txIsExpiredCustomerCancel,
+  TRANSITION_PROVIDER_CANCEL_FROM_ECC,
 } from '../../util/transaction';
 import { LINE_ITEM_NIGHT, LINE_ITEM_DAY, propTypes } from '../../util/types';
 import {
@@ -181,6 +189,20 @@ export class TransactionPanelComponent extends Component {
     onCancel(currentTransactionId, transition);
   }
 
+  onHandleAccept = (currentTransactionId, stateData) => {
+    const { onAcceptSale } = this.props;
+    const transition = stateData.providerAcceptTransition;
+
+    onAcceptSale(currentTransactionId, transition);
+  }
+
+  onHandleDecline = (currentTransactionId, stateData) => {
+    const { onDeclineSale } = this.props;
+    const transition = stateData.providerDeclineTransition;
+
+    onDeclineSale(currentTransactionId, transition);
+  }
+
   render() {
     const {
       rootClassName,
@@ -202,8 +224,6 @@ export class TransactionPanelComponent extends Component {
       onShowMoreMessages,
       transactionRole,
       intl,
-      onAcceptSale,
-      onDeclineSale,
       acceptInProgress,
       declineInProgress,
       cancelInProgress,
@@ -263,6 +283,18 @@ export class TransactionPanelComponent extends Component {
           showSaleButtons: isProvider && !isCustomerBanned,
           showCancelButton: isCustomer,
           customerCancelTransition: TRANSITION_CUSTOMER_CANCEL_FROM_PREAUTHORIZED,
+          providerAcceptTransition: TRANSITION_ACCEPT,
+          providerDeclineTransition: TRANSITION_DECLINE,
+        };
+      } else if (txIsRefundPeriodExpire1(tx)) {
+        return {
+          headingState: HEADING_REQUESTED,
+          showDetailCardHeadings: isCustomer,
+          showSaleButtons: isProvider && !isCustomerBanned,
+          showCancelButton: isCustomer,
+          customerCancelTransition: TRANSITION_CUSTOMER_CANCEL_FROM_BERP1,
+          providerAcceptTransition: TRANSITION_ACCEPT_FROM_BERP1,
+          providerDeclineTransition: TRANSITION_PROVIDER_DECLINE_FROM_BERP1,
         };
       } else if (txIsAccepted(tx)) {
         return {
@@ -281,6 +313,14 @@ export class TransactionPanelComponent extends Component {
           showCancelButton: true,
           customerCancelTransition: TRANSITION_CUSTOMER_CANCEL_FROM_BERP,
           providerCancelTransition: TRANSITION_PROVIDER_CANCEL_FROM_BERP,
+        };
+      } else if (txIsExpiredCustomerCancel(tx)) {
+        return {
+          headingState: HEADING_ACCEPTED,
+          showDetailCardHeadings: isCustomer,
+          showAddress: isCustomer,
+          showCancelButton: isProvider,
+          providerCancelTransition: TRANSITION_PROVIDER_CANCEL_FROM_ECC,
         };
       } else if (txIsDeclined(tx)) {
         return {
@@ -303,7 +343,6 @@ export class TransactionPanelComponent extends Component {
       }
     };
 
-    console.log('currentTransaction :', currentTransaction);
     const stateData = stateDataFn(currentTransaction);
 
     const deletedListingTitle = intl.formatMessage({
@@ -348,8 +387,8 @@ export class TransactionPanelComponent extends Component {
         declineInProgress={declineInProgress}
         acceptSaleError={acceptSaleError}
         declineSaleError={declineSaleError}
-        onAcceptSale={() => onAcceptSale(currentTransaction.id)}
-        onDeclineSale={() => onDeclineSale(currentTransaction.id)}
+        onAcceptSale={() => this.onHandleAccept(currentTransaction.id, stateData)}
+        onDeclineSale={() => this.onHandleDecline(currentTransaction.id, stateData)}
       />
     );
 
@@ -535,6 +574,7 @@ TransactionPanelComponent.defaultProps = {
   currentUser: null,
   acceptSaleError: null,
   declineSaleError: null,
+  cancelError: null,
   fetchMessagesError: null,
   initialMessageFailed: false,
   savePaymentMethodFailed: false,
@@ -574,10 +614,13 @@ TransactionPanelComponent.propTypes = {
   // Sale related props
   onAcceptSale: func.isRequired,
   onDeclineSale: func.isRequired,
+  onCancel: func.isRequired,
   acceptInProgress: bool.isRequired,
   declineInProgress: bool.isRequired,
+  cancelInProgress: bool.isRequired,
   acceptSaleError: propTypes.error,
   declineSaleError: propTypes.error,
+  cancelError: propTypes.error,
 
   // from injectIntl
   intl: intlShape,

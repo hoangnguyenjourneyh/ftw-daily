@@ -72,7 +72,7 @@ export const TransactionPageComponent = props => {
     acceptSaleError,
     declineInProgress,
     declineSaleError,
-    cancelInprogress,
+    cancelInProgress,
     cancelError,
     onAcceptSale,
     onDeclineSale,
@@ -242,7 +242,7 @@ export const TransactionPageComponent = props => {
       onCancel={onCancel}
       acceptInProgress={acceptInProgress}
       declineInProgress={declineInProgress}
-      cancelInprogress={cancelInprogress}
+      cancelInProgress={cancelInProgress}
       acceptSaleError={acceptSaleError}
       declineSaleError={declineSaleError}
       cancelError={cancelError}
@@ -302,7 +302,7 @@ TransactionPageComponent.propTypes = {
   cancelError: propTypes.error,
   acceptInProgress: bool.isRequired,
   declineInProgress: bool.isRequired,
-  cancelInprogress: bool.isRequired,
+  cancelInProgress: bool.isRequired,
   onAcceptSale: func.isRequired,
   onDeclineSale: func.isRequired,
   scrollingDisabled: bool.isRequired,
@@ -394,8 +394,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onAcceptSale: transactionId => dispatch(acceptSale(transactionId)),
-    onDeclineSale: transactionId => dispatch(declineSale(transactionId)),
+    onAcceptSale: (transactionId, transition) => dispatch(acceptSale(transactionId, transition)),
+    onDeclineSale: (transactionId, transition) => dispatch(declineSale(transactionId, transition)),
     onCancel: (transactionId, transition) => dispatch(cancelBooking(transactionId, transition)),
     onShowMoreMessages: txId => dispatch(fetchMoreMessages(txId)),
     onSendMessage: (txId, message) => dispatch(sendMessage(txId, message)),
