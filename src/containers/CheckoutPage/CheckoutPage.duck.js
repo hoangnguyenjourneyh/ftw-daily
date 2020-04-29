@@ -3,9 +3,21 @@ import config from '../../config';
 import { denormalisedResponseEntities } from '../../util/data';
 import { storableError } from '../../util/errors';
 import {
+  TRANSITION_FIRST_TIME_REQUEST_PAYMENT,
+  TRANSITION_FIRST_TIME_REQUEST_PAYMENT_AFTER_ENQUIRY,
   TRANSITION_REQUEST_PAYMENT,
   TRANSITION_REQUEST_PAYMENT_AFTER_ENQUIRY,
   TRANSITION_CONFIRM_PAYMENT,
+  TRANSITION_COMPLETE_FROM_BERP,
+  TRANSITION_COMPLETE_FROM_ACCEPTED,
+  TRANSITION_REVIEW_1_BY_CUSTOMER,
+  TRANSITION_REVIEW_1_BY_PROVIDER,
+  TRANSITION_REVIEW_2_BY_CUSTOMER,
+  TRANSITION_REVIEW_2_BY_PROVIDER,
+  TRANSITION_EXPIRE_CUSTOMER_REVIEW_PERIOD,
+  TRANSITION_EXPIRE_PROVIDER_REVIEW_PERIOD,
+  TRANSITION_EXPIRE_REVIEW_PERIOD,
+  TRANSITION_COMPLETE_FROM_ECC,
 } from '../../util/transaction';
 import * as log from '../../util/log';
 import { fetchCurrentUserHasOrdersSuccess, fetchCurrentUser } from '../../ducks/user.duck';
@@ -159,17 +171,19 @@ export const stripeCustomerError = e => ({
 
 /* ================ Thunks ================ */
 
-export const initiateOrder = (orderParams, transactionId) => (dispatch, getState, sdk) => {
+export const initiateOrder = (orderParams, transactionId) => async (dispatch, getState, sdk) => {
+  const isFirstTimeRequest = await isFirstTimeCustomerRequest(sdk);
   dispatch(initiateOrderRequest());
   const bodyParams = transactionId
     ? {
         id: transactionId,
-        transition: TRANSITION_REQUEST_PAYMENT_AFTER_ENQUIRY,
+        transition: isFirstTimeRequest ? TRANSITION_FIRST_TIME_REQUEST_PAYMENT_AFTER_ENQUIRY 
+          : TRANSITION_REQUEST_PAYMENT_AFTER_ENQUIRY,
         params: orderParams,
       }
     : {
         processAlias: config.bookingProcessAlias,
-        transition: TRANSITION_REQUEST_PAYMENT,
+        transition: isFirstTimeRequest ? TRANSITION_FIRST_TIME_REQUEST_PAYMENT : TRANSITION_REQUEST_PAYMENT,
         params: orderParams,
       };
   const queryParams = {
@@ -259,10 +273,11 @@ export const sendMessage = params => (dispatch, getState, sdk) => {
  * pricing info for the booking breakdown to get a proper estimate for
  * the price with the chosen information.
  */
-export const speculateTransaction = params => (dispatch, getState, sdk) => {
+export const speculateTransaction = params => async (dispatch, getState, sdk) => {
+  const isFirstTimeRequest = await isFirstTimeCustomerRequest(sdk);
   dispatch(speculateTransactionRequest());
   const bodyParams = {
-    transition: TRANSITION_REQUEST_PAYMENT,
+    transition: isFirstTimeRequest ? TRANSITION_FIRST_TIME_REQUEST_PAYMENT : TRANSITION_REQUEST_PAYMENT,
     processAlias: config.bookingProcessAlias,
     params: {
       ...params,
@@ -307,3 +322,33 @@ export const stripeCustomer = () => (dispatch, getState, sdk) => {
       dispatch(stripeCustomerError(storableError(e)));
     });
 };
+
+const requestOwnTransactions = async (params = {}, sdk) => {
+  try {
+    const response = await sdk.transactions.query(params);
+    return response && response.data;
+  } catch (error) {
+    throw new Error(`Error can not fetch transactions: ${error}`);
+  }
+}
+
+export const isFirstTimeCustomerRequest = async (sdk) => {
+  const checkOrderTransactionParams = {
+    only: 'order',
+    lastTransitions: [
+      TRANSITION_COMPLETE_FROM_BERP,
+      TRANSITION_COMPLETE_FROM_ACCEPTED,
+      TRANSITION_COMPLETE_FROM_ECC,
+      TRANSITION_REVIEW_1_BY_CUSTOMER,
+      TRANSITION_REVIEW_1_BY_PROVIDER,
+      TRANSITION_REVIEW_2_BY_CUSTOMER,
+      TRANSITION_REVIEW_2_BY_PROVIDER,
+      TRANSITION_EXPIRE_CUSTOMER_REVIEW_PERIOD,
+      TRANSITION_EXPIRE_PROVIDER_REVIEW_PERIOD,
+      TRANSITION_EXPIRE_REVIEW_PERIOD,
+    ]
+  };
+  const response = await requestOwnTransactions(checkOrderTransactionParams, sdk)
+  return response && response.data && response.data.length < 1;
+
+}

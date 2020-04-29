@@ -89,6 +89,14 @@ export const bookingDateRequired = inValidDateMessage => value => {
   return !dateIsValid ? inValidDateMessage : VALID;
 };
 
+export const bookingStartTimeAtLeast = (inValidDateMessage, hours) => value => {
+  const currentDate = moment();
+  const startDate = value && moment(Number.parseInt(value));
+  const duration = startDate && startDate.diff(currentDate, 'hours');
+  const dateIsValid = duration > hours;
+  return !dateIsValid ? inValidDateMessage : VALID;
+};
+
 export const bookingDatesRequired = (inValidStartDateMessage, inValidEndDateMessage) => value => {
   const startDateIsValid = value && value.startDate instanceof Date;
   const endDateIsValid = value && value.endDate instanceof Date;

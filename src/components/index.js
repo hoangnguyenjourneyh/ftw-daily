@@ -93,6 +93,7 @@ export { default as FieldDateInput } from './FieldDateInput/FieldDateInput';
 export { default as FieldDateRangeController } from './FieldDateRangeController/FieldDateRangeController';
 export { default as FieldDateRangeInput } from './FieldDateRangeInput/FieldDateRangeInput';
 export { default as FieldRadioButton } from './FieldRadioButton/FieldRadioButton';
+export { default as FieldDateTimeRangeInput } from './FieldDateTimeRangeInput/FieldDateTimeRangeInput';
 export { default as FieldReviewRating } from './FieldReviewRating/FieldReviewRating';
 export { default as FieldSelect } from './FieldSelect/FieldSelect';
 export { default as FieldTextInput } from './FieldTextInput/FieldTextInput';

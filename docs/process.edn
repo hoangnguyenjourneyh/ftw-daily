@@ -98,7 +98,7 @@
              :state/preauthorized]}
            {:fn/period ["P3D"]}]}
          {:fn/minus
-          [{:fn/timepoint [:time/booking-end]}
+          [{:fn/timepoint [:time/booking-display-start]}
            {:fn/period ["PT12H"]}]}]}
    :actions [{:name :action/decline-booking}
              {:name :action/calculate-full-refund}
@@ -156,6 +156,14 @@
    :actions []
    :from :state/accepted
    :to :state/booking-expire-refund-period}
+  {:name :transition/expire-customer-cancel-1
+   :at {:fn/minus
+        [{:fn/timepoint
+          [:time/booking-display-start]}
+         {:fn/period ["PT1H"]}]}
+   :actions []
+   :from :state/accepted
+   :to :state/expired-customer-cancel-1}
 
   {:name :transition/accept-from-BERP1
    :actor :actor.role/provider
@@ -177,7 +185,7 @@
              :state/preauthorized]}
            {:fn/period ["P3D"]}]}
          {:fn/minus
-          [{:fn/timepoint [:time/booking-end]}
+          [{:fn/timepoint [:time/booking-display-start]}
            {:fn/period ["PT12H"]}]}]}
    :actions [{:name :action/decline-booking}
              {:name :action/calculate-full-refund}
@@ -214,7 +222,35 @@
    :actions [{:name :action/cancel-booking}]
    :from :state/booking-expire-refund-period
    :to :state/cancelled}
+  {:name :transition/expire-customer-cancel-from-BERP
+   :at {:fn/minus
+        [{:fn/timepoint
+          [:time/booking-display-start]}
+         {:fn/period ["PT1H"]}]}
+   :actions [{:name :action/stripe-create-payout}]
+   :from :state/booking-expire-refund-period
+   :to :state/expired-customer-cancel-1}
 
+  {:name :transition/complete-from-ECC1
+   :at {:fn/timepoint [:time/booking-end]}
+   :actions [{:name :action/stripe-create-payout}]
+   :from :state/expired-customer-cancel-1
+   :to :state/delivered}
+  {:name :transition/operator-cancel-from-ECC1
+   :actor :actor.role/operator
+   :actions [{:name :action/cancel-booking}
+             {:name :action/calculate-full-refund}
+             {:name :action/stripe-refund-payment}]
+   :from :state/expired-customer-cancel-1
+   :to :state/cancelled}
+  {:name :transition/provider-cancel-from-ECC1
+   :actor :actor.role/provider
+   :actions [{:name :action/cancel-booking}
+             {:name :action/calculate-full-refund}
+             {:name :action/stripe-refund-payment}]
+   :from :state/expired-customer-cancel-1
+   :to :state/cancelled}
+  
   {:name :transition/review-1-by-provider
    :actor :actor.role/provider
    :actions [{:name :action/post-review-by-provider}]

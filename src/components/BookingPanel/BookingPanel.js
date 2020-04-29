@@ -5,12 +5,12 @@ import { intlShape, injectIntl, FormattedMessage } from '../../util/reactIntl';
 import { arrayOf, bool, func, node, oneOfType, shape, string } from 'prop-types';
 import classNames from 'classnames';
 import omit from 'lodash/omit';
-import { propTypes, LISTING_STATE_CLOSED, LINE_ITEM_NIGHT, LINE_ITEM_DAY } from '../../util/types';
+import { propTypes, LISTING_STATE_CLOSED, LINE_ITEM_NIGHT, LINE_ITEM_DAY, listingTypes } from '../../util/types';
 import { formatMoney } from '../../util/currency';
 import { parse, stringify } from '../../util/urlHelpers';
 import config from '../../config';
 import { ModalInMobile, Button } from '../../components';
-import { BookingDatesForm } from '../../forms';
+import { BookingDatesForm, BookingDateTimeForm } from '../../forms';
 
 import css from './BookingPanel.css';
 
@@ -68,6 +68,8 @@ const BookingPanel = props => {
   } = props;
 
   const price = listing.attributes.price;
+  const { listingType } = listing.attributes.publicData;
+  const isTeacherList = listingType === listingTypes.teacher;
   const hasListingState = !!listing.attributes.state;
   const isClosed = hasListingState && listing.attributes.state === LISTING_STATE_CLOSED;
   const showBookingDatesForm = hasListingState && !isClosed;
@@ -114,18 +116,31 @@ const BookingPanel = props => {
           <h2 className={titleClasses}>{title}</h2>
           {subTitleText ? <div className={css.bookingHelp}>{subTitleText}</div> : null}
         </div>
-        {showBookingDatesForm ? (
-          <BookingDatesForm
-            className={css.bookingForm}
-            formId="BookingPanel"
-            submitButtonWrapperClassName={css.bookingDatesSubmitButtonWrapper}
-            unitType={unitType}
-            onSubmit={onSubmit}
-            price={price}
-            isOwnListing={isOwnListing}
-            timeSlots={timeSlots}
-            fetchTimeSlotsError={fetchTimeSlotsError}
-          />
+        {showBookingDatesForm ? 
+          isTeacherList ? (
+            <BookingDateTimeForm
+              className={css.bookingForm}
+              formId="BookingPanel"
+              submitButtonWrapperClassName={css.bookingDatesSubmitButtonWrapper}
+              unitType={unitType}
+              onSubmit={onSubmit}
+              price={price}
+              isOwnListing={isOwnListing}
+              timeSlots={timeSlots}
+              fetchTimeSlotsError={fetchTimeSlotsError}
+            /> 
+          ) : (
+            <BookingDatesForm
+              className={css.bookingForm}
+              formId="BookingPanel"
+              submitButtonWrapperClassName={css.bookingDatesSubmitButtonWrapper}
+              unitType={unitType}
+              onSubmit={onSubmit}
+              price={price}
+              isOwnListing={isOwnListing}
+              timeSlots={timeSlots}
+              fetchTimeSlotsError={fetchTimeSlotsError}
+            />
         ) : null}
       </ModalInMobile>
       <div className={css.openBookingForm}>

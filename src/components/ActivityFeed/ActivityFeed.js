@@ -8,10 +8,10 @@ import { formatDate } from '../../util/dates';
 import { ensureTransaction, ensureUser, ensureListing } from '../../util/data';
 import {
   TRANSITION_ACCEPT,
-  TRANSITION_CANCEL,
-  TRANSITION_COMPLETE,
+  TRANSITION_OPERATOR_CANCEL_FROM_ACCEPTED,
+  TRANSITION_COMPLETE_FROM_ACCEPTED,
   TRANSITION_DECLINE,
-  TRANSITION_EXPIRE,
+  TRANSITION_EXPIRE_FROM_PREAUTHORIZED,
   TRANSITION_CONFIRM_PAYMENT,
   TRANSITION_REVIEW_1_BY_CUSTOMER,
   TRANSITION_REVIEW_1_BY_PROVIDER,
@@ -27,6 +27,21 @@ import {
   txRoleIsCustomer,
   getUserTxRole,
   isRelevantPastTransition,
+  TRANSITION_COMPLETE_FROM_BERP,
+  TRANSITION_CUSTOMER_CANCEL_FROM_ACCEPTED,
+  TRANSITION_PROVIDER_CANCEL_FROM_ACCEPTED,
+  TRANSITION_OPERATOR_CANCEL_FROM_BERP,
+  TRANSITION_CUSTOMER_CANCEL_FROM_BERP,
+  TRANSITION_PROVIDER_CANCEL_FROM_BERP,
+  TRANSITION_EXPIRE_2_REFUND_PERIOD,
+  TRANSITION_EXPIRE_1_REFUND_PERIOD,
+  TRANSITION_ACCEPT_FROM_BERP1,
+  TRANSITION_CUSTOMER_CANCEL_FROM_BERP1,
+  TRANSITION_COMPLETE_FROM_ECC,
+  TRANSITION_PROVIDER_DECLINE_FROM_BERP1,
+  TRANSITION_OPERATOR_CANCEL_FROM_ECC,
+  TRANSITION_PROVIDER_CANCEL_FROM_ECC,
+  TRANSITION_EXPIRE_PAYMENT_FROM_BERP1,
 } from '../../util/transaction';
 import { propTypes } from '../../util/types';
 import * as log from '../../util/log';
@@ -126,26 +141,42 @@ const resolveTransitionMessage = (
         />
       );
     case TRANSITION_ACCEPT:
+    case TRANSITION_ACCEPT_FROM_BERP1:
       return isOwnTransition ? (
         <FormattedMessage id="ActivityFeed.ownTransitionAccept" />
       ) : (
         <FormattedMessage id="ActivityFeed.transitionAccept" values={{ displayName }} />
       );
     case TRANSITION_DECLINE:
+    case TRANSITION_PROVIDER_DECLINE_FROM_BERP1:
       return isOwnTransition ? (
         <FormattedMessage id="ActivityFeed.ownTransitionDecline" />
       ) : (
         <FormattedMessage id="ActivityFeed.transitionDecline" values={{ displayName }} />
       );
-    case TRANSITION_EXPIRE:
+    case TRANSITION_EXPIRE_FROM_PREAUTHORIZED:
+    case TRANSITION_EXPIRE_PAYMENT_FROM_BERP1:
       return txRoleIsProvider(ownRole) ? (
         <FormattedMessage id="ActivityFeed.ownTransitionExpire" />
       ) : (
         <FormattedMessage id="ActivityFeed.transitionExpire" values={{ displayName }} />
       );
-    case TRANSITION_CANCEL:
+    case TRANSITION_EXPIRE_1_REFUND_PERIOD:
+    case TRANSITION_EXPIRE_2_REFUND_PERIOD:
+      return <FormattedMessage id="ActivityFeed.transitionExpireRefundPeriod" />
+    case TRANSITION_OPERATOR_CANCEL_FROM_ACCEPTED:
+    case TRANSITION_CUSTOMER_CANCEL_FROM_ACCEPTED:
+    case TRANSITION_PROVIDER_CANCEL_FROM_ACCEPTED:
+    case TRANSITION_OPERATOR_CANCEL_FROM_BERP:
+    case TRANSITION_CUSTOMER_CANCEL_FROM_BERP:
+    case TRANSITION_PROVIDER_CANCEL_FROM_BERP:
+    case TRANSITION_CUSTOMER_CANCEL_FROM_BERP1:
+    case TRANSITION_OPERATOR_CANCEL_FROM_ECC:
+    case TRANSITION_PROVIDER_CANCEL_FROM_ECC:
       return <FormattedMessage id="ActivityFeed.transitionCancel" />;
-    case TRANSITION_COMPLETE:
+    case TRANSITION_COMPLETE_FROM_ACCEPTED:
+    case TRANSITION_COMPLETE_FROM_BERP:
+    case TRANSITION_COMPLETE_FROM_ECC:
       // Show the leave a review link if the state is delivered and if the current user is the first to leave a review
       const reviewPeriodJustStarted = txIsDelivered(transaction);
 
