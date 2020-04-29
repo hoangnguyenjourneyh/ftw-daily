@@ -5,7 +5,7 @@ import moment from 'moment';
  */
 export const START_DATE = 'startDate';
 export const END_DATE = 'endDate';
-
+export const AT_LEAST_HOURS = 12;
 /**
  * Check that the given parameter is a Date object.
  *
@@ -273,4 +273,88 @@ export const formatDateToText = (intl, date) => {
       day: 'numeric',
     }),
   };
+};
+
+export const localizeAndFormatTime = (date) => {
+  return moment(date).format('hh:00 a');
+};
+
+const findBookingUnitBoundaries = params => {
+  const {
+    cumulatedResults,
+    currentBoundary,
+    startMoment,
+    endMoment,
+    nextBoundaryFn,
+  } = params;
+
+  if (moment(currentBoundary).isBetween(startMoment, endMoment, null, '[]')) {
+    const timeOfDay = localizeAndFormatTime(currentBoundary);
+    // Choose the previous (aka first) sharp hour boundary,
+    // if daylight saving time (DST) creates the same time of day two times.
+    const newBoundary =
+      cumulatedResults &&
+      cumulatedResults.length > 0 &&
+      cumulatedResults.slice(-1)[0].timeOfDay === timeOfDay
+        ? []
+        : [
+            {
+              timestamp: currentBoundary.valueOf(),
+              timeOfDay,
+            },
+          ];
+
+    return findBookingUnitBoundaries({
+      ...params,
+      cumulatedResults: [...cumulatedResults, ...newBoundary],
+      currentBoundary: moment(nextBoundaryFn( currentBoundary)),
+    });
+  }
+  return cumulatedResults;
+};
+
+export const findNextBoundary = (currentMomentOrDate) =>
+  moment(currentMomentOrDate)
+    .clone()
+    .add(1, 'hour')
+    .startOf('hour')
+    .toDate();
+
+export const getSharpHours = (intl, startTime, endTime) => {
+  // Select a moment before startTime to find next possible sharp hour.
+  // I.e. startTime might be a sharp hour.
+  const millisecondBeforeStartTime = new Date(startTime.getTime() - 1);
+  return findBookingUnitBoundaries({
+    currentBoundary: findNextBoundary(millisecondBeforeStartTime),
+    startMoment: moment(startTime),
+    endMoment: moment(endTime),
+    nextBoundaryFn: findNextBoundary,
+    cumulatedResults: [],
+    intl,
+  });
+};
+
+export const getStartHours = (intl, startTime, endTime) => {
+  const hours = getSharpHours(intl, startTime, endTime);
+  return hours.length < 2 ? hours : hours.slice(0, -1);
+};
+
+export const timeOfDayFromLocalToTimeZone = (date, timeZone) => {
+  return moment.tz(moment(date).format('YYYY-MM-DD HH:mm:ss'), timeZone).toDate();
+};
+
+export const resetToStartOfDay = (date, offset = 0) => {
+  return moment(date)
+    .clone()
+    .startOf('day')
+    .add(offset, 'days')
+    .toDate();
+};
+
+export const dateIsAfter = (date, compareToDate) => {
+  return moment(date).isSameOrAfter(compareToDate);
+};
+
+export const timestampToDate = timestamp => {
+  return new Date(Number.parseInt(timestamp, 10));
 };

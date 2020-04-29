@@ -388,7 +388,7 @@ const mapStateToProps = state => {
     fetchTimeSlotsError,
     processTransitions,
     cancelError: cancelBookingError,
-    cancelInprogress: cancelBookingInProgress,
+    cancelInProgress: cancelBookingInProgress,
   };
 };
 
