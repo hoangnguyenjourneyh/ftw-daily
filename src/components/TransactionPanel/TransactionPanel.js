@@ -14,19 +14,13 @@ import {
   txHasBeenDelivered,
   txIsRefundPeriodExpire,
   txIsRefundPeriodExpire1,
-  TRANSITION_CUSTOMER_CANCEL_FROM_ACCEPTED,
-  TRANSITION_PROVIDER_CANCEL_FROM_BERP,
-  TRANSITION_CUSTOMER_CANCEL_FROM_BERP,
-  TRANSITION_PROVIDER_CANCEL_FROM_ACCEPTED,
-  TRANSITION_CUSTOMER_CANCEL_FROM_PENDING_PAYMENT,
-  TRANSITION_CUSTOMER_CANCEL_FROM_PREAUTHORIZED,
-  TRANSITION_CUSTOMER_CANCEL_FROM_BERP1,
   TRANSITION_ACCEPT_FROM_BERP1,
-  TRANSITION_PROVIDER_DECLINE_FROM_BERP1,
-  TRANSITION_DECLINE,
   TRANSITION_ACCEPT,
   txIsExpiredCustomerCancel,
-  TRANSITION_PROVIDER_CANCEL_FROM_ECC,
+  ACTION_DECLINE,
+  ACTION_CANCEL,
+  TX_TRANSITION_ACTOR_CUSTOMER,
+  TX_TRANSITION_ACTOR_PROVIDER,
 } from '../../util/transaction';
 import { LINE_ITEM_NIGHT, LINE_ITEM_DAY, propTypes } from '../../util/types';
 import {
@@ -95,6 +89,20 @@ const displayNames = (currentUser, currentProvider, currentCustomer, intl) => {
     otherUserDisplayNameString,
   };
 };
+
+const getCancelTransition = (nextTransitions, actor) => {
+  const cancelTransition = Array.isArray(nextTransitions)
+    ? nextTransitions.reduce((result, transition) => {
+        const isCancelTransition = transition && transition.attributes && transition.attributes.actor.includes(actor) &&
+          (transition.attributes.actions.includes(ACTION_DECLINE) || transition.attributes.actions.includes(ACTION_CANCEL));
+        if (isCancelTransition) {
+          return [ ...result, transition.attributes.name ];
+        }
+        return result;
+      }, [])
+    : [];
+  return cancelTransition.length === 1 ? cancelTransition[0] : null;
+}
 
 export class TransactionPanelComponent extends Component {
   constructor(props) {
@@ -180,27 +188,31 @@ export class TransactionPanelComponent extends Component {
     const { onCancel, transactionRole } = this.props;
     const isCustomer = transactionRole === 'customer';
     const isProvider = transactionRole === 'provider';
-    let transition = '';
+    let transition;
     if (isCustomer) {
-      transition = stateData.customerCancelTransition || '';
+      transition = stateData && stateData.customerCancelTransition;
     } else if (isProvider) {
-      transition = stateData.providerCancelTransition || '';
+      transition = stateData && stateData.providerCancelTransition;
     }
-    onCancel(currentTransactionId, transition);
+    if (transition) {
+      onCancel(currentTransactionId, transition);
+    }
   }
 
   onHandleAccept = (currentTransactionId, stateData) => {
     const { onAcceptSale } = this.props;
-    const transition = stateData.providerAcceptTransition;
-
-    onAcceptSale(currentTransactionId, transition);
+    const transition = stateData && stateData.providerAcceptTransition;
+    if (transition) {
+      onAcceptSale(currentTransactionId, transition);
+    }
   }
 
   onHandleDecline = (currentTransactionId, stateData) => {
     const { onDeclineSale } = this.props;
-    const transition = stateData.providerDeclineTransition;
-
-    onDeclineSale(currentTransactionId, transition);
+    const transition = stateData && stateData.providerDeclineTransition;
+    if (transition) {
+      onDeclineSale(currentTransactionId, transition);
+    }
   }
 
   render() {
@@ -269,7 +281,6 @@ export class TransactionPanelComponent extends Component {
         return {
           headingState: HEADING_PAYMENT_PENDING,
           showDetailCardHeadings: isCustomer,
-          customerCancelTransition: TRANSITION_CUSTOMER_CANCEL_FROM_PENDING_PAYMENT,
         };
       } else if (txIsPaymentExpired(tx)) {
         return {
@@ -282,9 +293,9 @@ export class TransactionPanelComponent extends Component {
           showDetailCardHeadings: isCustomer,
           showSaleButtons: isProvider && !isCustomerBanned,
           showCancelButton: isCustomer,
-          customerCancelTransition: TRANSITION_CUSTOMER_CANCEL_FROM_PREAUTHORIZED,
+          customerCancelTransition: getCancelTransition(nextTransitions, TX_TRANSITION_ACTOR_CUSTOMER),
           providerAcceptTransition: TRANSITION_ACCEPT,
-          providerDeclineTransition: TRANSITION_DECLINE,
+          providerDeclineTransition: getCancelTransition(nextTransitions, TX_TRANSITION_ACTOR_PROVIDER),
         };
       } else if (txIsRefundPeriodExpire1(tx)) {
         return {
@@ -292,9 +303,9 @@ export class TransactionPanelComponent extends Component {
           showDetailCardHeadings: isCustomer,
           showSaleButtons: isProvider && !isCustomerBanned,
           showCancelButton: isCustomer,
-          customerCancelTransition: TRANSITION_CUSTOMER_CANCEL_FROM_BERP1,
+          customerCancelTransition: getCancelTransition(nextTransitions, TX_TRANSITION_ACTOR_CUSTOMER),
           providerAcceptTransition: TRANSITION_ACCEPT_FROM_BERP1,
-          providerDeclineTransition: TRANSITION_PROVIDER_DECLINE_FROM_BERP1,
+          providerDeclineTransition: getCancelTransition(nextTransitions, TX_TRANSITION_ACTOR_PROVIDER),
         };
       } else if (txIsAccepted(tx)) {
         return {
@@ -302,8 +313,8 @@ export class TransactionPanelComponent extends Component {
           showDetailCardHeadings: isCustomer,
           showAddress: isCustomer,
           showCancelButton: true,
-          customerCancelTransition: TRANSITION_CUSTOMER_CANCEL_FROM_ACCEPTED,
-          providerCancelTransition: TRANSITION_PROVIDER_CANCEL_FROM_ACCEPTED,
+          customerCancelTransition: getCancelTransition(nextTransitions, TX_TRANSITION_ACTOR_CUSTOMER),
+          providerCancelTransition: getCancelTransition(nextTransitions, TX_TRANSITION_ACTOR_PROVIDER),
         };
       } else if (txIsRefundPeriodExpire(tx)) {
         return {
@@ -311,8 +322,8 @@ export class TransactionPanelComponent extends Component {
           showDetailCardHeadings: isCustomer,
           showAddress: isCustomer,
           showCancelButton: true,
-          customerCancelTransition: TRANSITION_CUSTOMER_CANCEL_FROM_BERP,
-          providerCancelTransition: TRANSITION_PROVIDER_CANCEL_FROM_BERP,
+          customerCancelTransition: getCancelTransition(nextTransitions, TX_TRANSITION_ACTOR_CUSTOMER),
+          providerCancelTransition: getCancelTransition(nextTransitions, TX_TRANSITION_ACTOR_PROVIDER),
         };
       } else if (txIsExpiredCustomerCancel(tx)) {
         return {
@@ -320,7 +331,7 @@ export class TransactionPanelComponent extends Component {
           showDetailCardHeadings: isCustomer,
           showAddress: isCustomer,
           showCancelButton: isProvider,
-          providerCancelTransition: TRANSITION_PROVIDER_CANCEL_FROM_ECC,
+          providerCancelTransition: getCancelTransition(nextTransitions, TX_TRANSITION_ACTOR_PROVIDER),
         };
       } else if (txIsDeclined(tx)) {
         return {

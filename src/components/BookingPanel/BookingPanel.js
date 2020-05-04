@@ -94,6 +94,17 @@ const BookingPanel = props => {
 
   const classes = classNames(rootClassName || css.root, className);
   const titleClasses = classNames(titleClassName || css.bookingTitle);
+  const bookingFormProps = {
+    className: css.bookingForm,
+    formId: "BookingPanel",
+    submitButtonWrapperClassName: css.bookingDatesSubmitButtonWrapper,
+    unitType: unitType,
+    onSubmit: onSubmit,
+    price: price,
+    isOwnListing: isOwnListing,
+    timeSlots: timeSlots,
+    fetchTimeSlotsError: fetchTimeSlotsError,
+  };
 
   return (
     <div className={classes}>
@@ -119,27 +130,11 @@ const BookingPanel = props => {
         {showBookingDatesForm ? 
           isTeacherList ? (
             <BookingDateTimeForm
-              className={css.bookingForm}
-              formId="BookingPanel"
-              submitButtonWrapperClassName={css.bookingDatesSubmitButtonWrapper}
-              unitType={unitType}
-              onSubmit={onSubmit}
-              price={price}
-              isOwnListing={isOwnListing}
-              timeSlots={timeSlots}
-              fetchTimeSlotsError={fetchTimeSlotsError}
+              { ...bookingFormProps }
             /> 
           ) : (
             <BookingDatesForm
-              className={css.bookingForm}
-              formId="BookingPanel"
-              submitButtonWrapperClassName={css.bookingDatesSubmitButtonWrapper}
-              unitType={unitType}
-              onSubmit={onSubmit}
-              price={price}
-              isOwnListing={isOwnListing}
-              timeSlots={timeSlots}
-              fetchTimeSlotsError={fetchTimeSlotsError}
+              { ...bookingFormProps }
             />
         ) : null}
       </ModalInMobile>

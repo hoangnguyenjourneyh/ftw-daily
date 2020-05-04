@@ -1,4 +1,4 @@
-{:format :v3,
+{:format :v3
  :transitions
  [{:name :transition/enquire
    :actor :actor.role/customer
@@ -68,13 +68,6 @@
    :actions [{:name :action/stripe-confirm-payment-intent}]
    :from :state/pending-payment
    :to :state/preauthorized}
-  {:name :transition/customer-cancel-from-pending-payment
-   :actor :actor.role/customer
-   :actions [{:name :action/decline-booking}
-             {:name :action/calculate-full-refund}
-             {:name :action/stripe-refund-payment}]
-   :from :state/pending-payment
-   :to :state/declined}
 
   {:name :transition/customer-cancel-from-preauthorized
    :actor :actor.role/customer
@@ -120,7 +113,7 @@
    :actions []
    :from :state/preauthorized
    :to :state/booking-expire-refund-period-1}
-  
+
   {:name :transition/operator-cancel-from-accepted
    :actor :actor.role/operator
    :actions [{:name :action/cancel-booking}
@@ -156,18 +149,19 @@
    :actions []
    :from :state/accepted
    :to :state/booking-expire-refund-period}
-  {:name :transition/expire-customer-cancel-1
+  {:name :transition/expire-customer-cancel-from-accepted
    :at {:fn/minus
         [{:fn/timepoint
           [:time/booking-display-start]}
          {:fn/period ["PT1H"]}]}
    :actions []
    :from :state/accepted
-   :to :state/expired-customer-cancel-1}
+   :to :state/expired-customer-cancel}
 
   {:name :transition/accept-from-BERP1
    :actor :actor.role/provider
-   :actions []
+   :actions [{:name :action/accept-booking}
+             {:name :action/stripe-capture-payment-intent}]
    :from :state/booking-expire-refund-period-1
    :to :state/accepted}
   {:name :transition/provider-decline-from-BERP1
@@ -177,7 +171,7 @@
              {:name :action/stripe-refund-payment}]
    :from :state/booking-expire-refund-period-1
    :to :state/declined}
-  {:name :transition/expire-from-BERP1
+  {:name :transition/expire-payment-from-BERP1
    :at {:fn/min
         [{:fn/plus
           [{:fn/timepoint
@@ -194,10 +188,10 @@
    :to :state/declined}
   {:name :transition/customer-cancel-from-BERP1
    :actor :actor.role/customer
-   :actions [{:name :action/cancel-booking}]
+   :actions [{:name :action/decline-booking}]
    :from :state/booking-expire-refund-period-1
-   :to :state/cancelled}
-  
+   :to :state/declined}
+
   {:name :transition/complete-from-BERP
    :at {:fn/timepoint [:time/booking-end]}
    :actions [{:name :action/stripe-create-payout}]
@@ -219,7 +213,8 @@
    :to :state/cancelled}
   {:name :transition/customer-cancel-from-BERP
    :actor :actor.role/customer
-   :actions [{:name :action/cancel-booking}]
+   :actions [{:name :action/cancel-booking}
+             {:name :action/stripe-create-payout}]
    :from :state/booking-expire-refund-period
    :to :state/cancelled}
   {:name :transition/expire-customer-cancel-from-BERP
@@ -229,28 +224,28 @@
          {:fn/period ["PT1H"]}]}
    :actions [{:name :action/stripe-create-payout}]
    :from :state/booking-expire-refund-period
-   :to :state/expired-customer-cancel-1}
+   :to :state/expired-customer-cancel}
 
-  {:name :transition/complete-from-ECC1
+  {:name :transition/complete-from-ECC
    :at {:fn/timepoint [:time/booking-end]}
    :actions [{:name :action/stripe-create-payout}]
-   :from :state/expired-customer-cancel-1
+   :from :state/expired-customer-cancel
    :to :state/delivered}
-  {:name :transition/operator-cancel-from-ECC1
+  {:name :transition/operator-cancel-from-ECC
    :actor :actor.role/operator
    :actions [{:name :action/cancel-booking}
              {:name :action/calculate-full-refund}
              {:name :action/stripe-refund-payment}]
-   :from :state/expired-customer-cancel-1
+   :from :state/expired-customer-cancel
    :to :state/cancelled}
-  {:name :transition/provider-cancel-from-ECC1
+  {:name :transition/provider-cancel-from-ECC
    :actor :actor.role/provider
    :actions [{:name :action/cancel-booking}
              {:name :action/calculate-full-refund}
              {:name :action/stripe-refund-payment}]
-   :from :state/expired-customer-cancel-1
+   :from :state/expired-customer-cancel
    :to :state/cancelled}
-  
+
   {:name :transition/review-1-by-provider
    :actor :actor.role/provider
    :actions [{:name :action/post-review-by-provider}]
@@ -299,7 +294,7 @@
    :from :state/reviewed-by-provider
    :to :state/reviewed}
   ]
- 
+
  :notifications
  [{:name :notification/new-booking-request
    :on :transition/confirm-payment

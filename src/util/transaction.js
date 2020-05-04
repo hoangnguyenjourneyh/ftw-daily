@@ -30,7 +30,6 @@ export const TRANSITION_CONFIRM_PAYMENT = 'transition/confirm-payment';
 // If the payment is not confirmed in the time limit set in transaction process (by default 15min)
 // the transaction will expire automatically.
 export const TRANSITION_EXPIRE_PAYMENT = 'transition/expire-payment';
-export const TRANSITION_CUSTOMER_CANCEL_FROM_PENDING_PAYMENT = 'transition/customer-cancel-from-pending-payment';
 
 // When the provider accepts or declines a transaction from the
 // SalePage, it is transitioned with the accept or decline transition.
@@ -121,6 +120,9 @@ const STATE_BOOKING_EXPIRE_REFUND_PERIOD = 'booking-expire-refund-period';
 const STATE_BOOKING_EXPIRE_REFUND_PERIOD_1 = 'booking-expire-refund-period-1';
 const STATE_EXPIRED_CUSTOMER_CANCEL = 'expired-customer-cancel'
 
+export const ACTION_DECLINE = 'action/decline-booking';
+export const ACTION_CANCEL = 'action/cancel-booking';
+
 /**
  * Description of transaction process
  *
@@ -159,7 +161,6 @@ const stateDescription = {
       on: {
         [TRANSITION_EXPIRE_PAYMENT]: STATE_PAYMENT_EXPIRED,
         [TRANSITION_CONFIRM_PAYMENT]: STATE_PREAUTHORIZED,
-        [TRANSITION_CUSTOMER_CANCEL_FROM_PENDING_PAYMENT]: STATE_DECLINED,
       },
     },
 
@@ -179,7 +180,7 @@ const stateDescription = {
       on: {
         [TRANSITION_EXPIRE_PAYMENT_FROM_BERP1]: STATE_DECLINED,
         [TRANSITION_PROVIDER_DECLINE_FROM_BERP1]: STATE_DECLINED,
-        [TRANSITION_CUSTOMER_CANCEL_FROM_BERP1]: STATE_CANCELED,
+        [TRANSITION_CUSTOMER_CANCEL_FROM_BERP1]: STATE_DECLINED,
         [TRANSITION_ACCEPT_FROM_BERP1]: STATE_ACCEPTED,
       }
     },
