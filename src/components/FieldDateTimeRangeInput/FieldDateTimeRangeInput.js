@@ -9,8 +9,8 @@ import React, { Component } from 'react';
 import { func, string, arrayOf } from 'prop-types';
 import moment from 'moment';
 import classNames from 'classnames';
-import { START_DATE, END_DATE, localizeAndFormatTime, getStartHours, resetToStartOfDay, dateIsAfter, AT_LEAST_HOURS } from '../../util/dates';
-import { bookingDateRequired, bookingStartTimeAtLeast, required} from '../../util/validators';
+import { START_DATE, END_DATE, localizeAndFormatTime, getStartHours, resetToStartOfDay, dateIsAfter } from '../../util/dates';
+import { bookingDateRequired, required } from '../../util/validators';
 import { propTypes } from '../../util/types';
 import { intlShape } from '../../util/reactIntl';
 import { FieldDateInput, FieldSelect } from '..';
@@ -35,30 +35,6 @@ class FieldDateTimeRangeInput extends Component {
     if (this.props.focusedInput && this.props.focusedInput !== prevProps.focusedInput) {
       this.setState({ focusedInput: this.props.focusedInput });
     }
-  }
-
-  onBookingStartDateChange = value => {
-    const { form } = this.props;
-      form.batch(() => {
-        form.change('bookingStartTime', value.date.getTime());
-        form.change('bookingEndTime', value.date.getTime());
-        form.change('bookingEndDate', { date: value.date });
-    });
-  };
-
-  onBookingStartTimeChange = event => {
-    const { form } = this.props;
-    form.change('bookingStartTime', event.target.value);
-  }
-
-  onBookingEndDateChange = value => {
-    const { form } = this.props;
-    form.change('bookingEndTime', value.date.getTime());
-  }
-
-  onBookingEndTimeChange = event => {
-    const { form } = this.props;
-    form.change('bookingEndTime', event.target.value);
   }
 
   isOutsideRange = (day, bookingStartDate) => {
@@ -110,7 +86,6 @@ class FieldDateTimeRangeInput extends Component {
               id={formId ? `${formId}.bookingStartDate` : 'bookingStartDate'}
               label={startDateLabel}
               placeholderText={startDatePlaceholderText}
-              onChange={this.onBookingStartDateChange}
               focused={focusedInput === START_DATE}
               format={format}
               showErrorMessage={false}
@@ -125,9 +100,7 @@ class FieldDateTimeRangeInput extends Component {
                 label={startTimeLabel}
                 selectClassName={bookingStartDate ? css.select : css.selectDisabled}
                 disabled={startTimeDisabled}
-                onChange={this.onBookingStartTimeChange}
                 showErrorMessage={false}
-                validate={bookingStartTimeAtLeast('', AT_LEAST_HOURS)}
               >
                 {bookingStartDate ? (
                   availableStartHours.map(p => (
@@ -151,7 +124,6 @@ class FieldDateTimeRangeInput extends Component {
               focused={focusedInput === END_DATE}
               format={format}
               placeholderText={endDatePlaceholderText}
-              onChange={this.onBookingEndDateChange}
               showErrorMessage={false}
               isOutsideRange={day =>
                 this.isOutsideRange(day, bookingStartDate)
@@ -167,7 +139,6 @@ class FieldDateTimeRangeInput extends Component {
                 label={endTimeLabel}
                 selectClassName={bookingEndDate ? css.select : css.selectDisabled}
                 disabled={endTimeDisabled}
-                onChange={this.onBookingEndTimeChange}
                 showErrorMessage={false}
                 validate={required(requireMessage)}
               >

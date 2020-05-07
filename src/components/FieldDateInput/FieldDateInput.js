@@ -5,7 +5,7 @@
  * you should convert value.date to start date and end date before submitting it to API
  */
 import React, { Component } from 'react';
-import { bool, func, object, string, arrayOf } from 'prop-types';
+import { bool, object, string, arrayOf } from 'prop-types';
 import { Field } from 'react-final-form';
 import classNames from 'classnames';
 import { ValidationError } from '../../components';
@@ -17,20 +17,6 @@ import css from './FieldDateInput.css';
 const MAX_MOBILE_SCREEN_WIDTH = 768;
 
 class FieldDateInputComponent extends Component {
-  constructor(props) {
-    super(props);
-    this.handleChange = this.handleChange.bind(this);
-  }
-
-  handleChange(value) {
-    // If "onChange" callback is passed through the props,
-    // it can notify the parent when the content of the input has changed.
-    if (this.props.onChange) {
-      this.props.onChange(value);
-    }
-    // Notify Final Form that the input has changed.
-    this.props.input.onChange(value);
-  }
 
   render() {
     const {
@@ -65,11 +51,10 @@ class FieldDateInputComponent extends Component {
       [css.pickerError]: hasError,
     });
 
-    const { onBlur, onFocus, onChange: finalFormOnChange, type, checked, ...restOfInput } = input;
+    const { onBlur, onFocus, type, checked, ...restOfInput } = input;
     const inputProps = {
       onBlur: input.onBlur,
       onFocus: input.onFocus,
-      onChange: this.handleChange,
       useMobileMargins,
       id,
       readOnly: typeof window !== 'undefined' && window.innerWidth < MAX_MOBILE_SCREEN_WIDTH,
@@ -119,7 +104,6 @@ FieldDateInputComponent.propTypes = {
   timeSlots: arrayOf(propTypes.timeSlot),
   input: object.isRequired,
   meta: object.isRequired,
-  onChange: func,
 };
 
 const FieldDateInput = props => {

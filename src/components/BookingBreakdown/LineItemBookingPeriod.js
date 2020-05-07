@@ -1,16 +1,17 @@
 import React from 'react';
 import { FormattedMessage, FormattedDate } from '../../util/reactIntl';
 import moment from 'moment';
-import { LINE_ITEM_NIGHT, DATE_TYPE_DATE, propTypes } from '../../util/types';
+import { LINE_ITEM_NIGHT, DATE_TYPE_DATE, propTypes, listingTypes } from '../../util/types';
 import { dateFromAPIToLocalNoon } from '../../util/dates';
 
 import css from './BookingBreakdown.css';
+import { string } from 'prop-types';
 
 const BookingPeriod = props => {
-  const { startDate, endDate, dateType } = props;
+  const { startDate, endDate, dateType, listingType } = props;
 
   const timeFormatOptions =
-    dateType === DATE_TYPE_DATE
+    dateType === DATE_TYPE_DATE && (listingType !== listingTypes.teacher)
       ? {
           weekday: 'long',
         }
@@ -57,23 +58,24 @@ const BookingPeriod = props => {
 };
 
 const LineItemBookingPeriod = props => {
-  const { booking, unitType, dateType } = props;
+  const { booking, unitType, dateType, listingType } = props;
 
   // Attributes: displayStart and displayEnd can be used to differentiate shown time range
   // from actual start and end times used for availability reservation. It can help in situations
   // where there are preparation time needed between bookings.
   // Read more: https://www.sharetribe.com/api-reference/marketplace.html#bookings
   const { start, end, displayStart, displayEnd } = booking.attributes;
-  const localStartDate = dateFromAPIToLocalNoon(displayStart || start);
-  const localEndDateRaw = dateFromAPIToLocalNoon(displayEnd || end);
-
+  const localStartDate = (listingType === listingTypes.teacher) ? 
+    displayStart : dateFromAPIToLocalNoon(displayStart || start);
+  const localEndDateRaw = (listingType === listingTypes.teacher) ?  
+    displayEnd : dateFromAPIToLocalNoon(displayEnd || end);
   const isNightly = unitType === LINE_ITEM_NIGHT;
   const endDay = isNightly ? localEndDateRaw : moment(localEndDateRaw).subtract(1, 'days');
 
   return (
     <>
       <div className={css.lineItem}>
-        <BookingPeriod startDate={localStartDate} endDate={endDay} dateType={dateType} />
+        <BookingPeriod startDate={localStartDate} endDate={endDay} dateType={dateType} listingType={listingType} />
       </div>
       <hr className={css.totalDivider} />
     </>
@@ -84,6 +86,7 @@ LineItemBookingPeriod.defaultProps = { dateType: null };
 LineItemBookingPeriod.propTypes = {
   booking: propTypes.booking.isRequired,
   dateType: propTypes.dateType,
+  listingType: string,
 };
 
 export default LineItemBookingPeriod;

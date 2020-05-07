@@ -36,8 +36,10 @@ export const BookingBreakdownComponent = props => {
     booking,
     intl,
     dateType,
+    listingType: listingTypeProps,
   } = props;
-
+  const listingType = listingTypeProps || (transaction && transaction.listing && transaction.listing.attributes &&
+    transaction.listing.attributes.publicData && transaction.listing.attributes.publicData.listingType);
   const isCustomer = userRole === 'customer';
   const isProvider = userRole === 'provider';
 
@@ -88,7 +90,7 @@ export const BookingBreakdownComponent = props => {
 
   return (
     <div className={classes}>
-      <LineItemBookingPeriod booking={booking} unitType={unitType} dateType={dateType} />
+      <LineItemBookingPeriod booking={booking} unitType={unitType} dateType={dateType} listingType={listingType} />
       <LineItemUnitsMaybe transaction={transaction} unitType={unitType} />
 
       <LineItemBasePriceMaybe transaction={transaction} unitType={unitType} intl={intl} />
@@ -146,7 +148,7 @@ BookingBreakdownComponent.propTypes = {
   transaction: propTypes.transaction.isRequired,
   booking: propTypes.booking.isRequired,
   dateType: propTypes.dateType,
-
+  listingType: string,
   // from injectIntl
   intl: intlShape.isRequired,
 };

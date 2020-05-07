@@ -194,7 +194,9 @@ export class CheckoutPageComponent extends Component {
       fetchSpeculatedTransaction({
         listingId,
         bookingStart: bookingStartForAPI,
+        bookingDisplayStart: bookingStart,
         bookingEnd: bookingEndForAPI,
+        bookingDisplayEnd: bookingEnd,
       });
     }
 
@@ -373,7 +375,9 @@ export class CheckoutPageComponent extends Component {
     const orderParams = {
       listingId: pageData.listing.id,
       bookingStart: tx.booking.attributes.start,
+      bookingDisplayStart: tx.booking.attributes.displayStart,
       bookingEnd: tx.booking.attributes.end,
+      bookingDisplayEnd: tx.booking.attributes.displayEnd,
       ...optionalPaymentParams,
     };
 
@@ -587,6 +591,8 @@ export class CheckoutPageComponent extends Component {
           transaction={tx}
           booking={txBooking}
           dateType={DATE_TYPE_DATE}
+          listingType={currentListing.attributes && currentListing.attributes.publicData &&
+            currentListing.attributes.publicData.listingType}
         />
       ) : null;
 

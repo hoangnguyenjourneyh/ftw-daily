@@ -5,7 +5,7 @@ import { Form as FinalForm, Field } from 'react-final-form';
 import { FormattedMessage, intlShape, injectIntl } from '../../util/reactIntl';
 import classNames from 'classnames';
 import moment from 'moment';
-import { bookingStartTimeAtLeast } from '../../util/validators';
+import { bookingStartTimeAtLeast, bookingEndTimeAtLeast } from '../../util/validators';
 import { START_DATE, END_DATE, AT_LEAST_HOURS, timestampToDate } from '../../util/dates';
 import { propTypes } from '../../util/types';
 import config from '../../config';
@@ -56,9 +56,11 @@ export class BookingDateTimeFormComponent extends Component {
 
   render() {
     
-    const { rootClassName, className, price: unitPrice, ...rest } = this.props;
+    const { rootClassName, className, price: unitPrice, intl, ...rest } = this.props;
     const classes = classNames(rootClassName || css.root, className);
-
+    const endDateErrorMessage = intl.formatMessage({
+      id: 'FieldDateRangeInput.invalidEndDate',
+    });
     if (!unitPrice) {
       return (
         <div className={classes}>
@@ -81,8 +83,10 @@ export class BookingDateTimeFormComponent extends Component {
     return (
       <FinalForm
         {...rest}
+        intl={intl}
         unitPrice={unitPrice}
         onSubmit={this.handleFormSubmit}
+        validate={bookingEndTimeAtLeast(endDateErrorMessage)}
         render={fieldRenderProps => {
           const {
             endDatePlaceholder,
@@ -101,13 +105,14 @@ export class BookingDateTimeFormComponent extends Component {
           } = fieldRenderProps;
           const { bookingStartDate, bookingEndTime } = values ? values : {};
           const startDate = bookingStartDate && bookingStartDate.date;
-          const endDate = this.endTimeToApiDate(bookingEndTime);
+          const endDate = bookingEndTime && this.endTimeToApiDate(bookingEndTime);
 
           const bookingStartDateLabel = intl.formatMessage({ id: 'BookingDateTimeForm.bookingStartDateTitle' });
           const bookingStartTimeLabel = intl.formatMessage({ id: 'BookingDateTimeForm.bookingStartTimeTitle' });
           const bookingEndDateLabel = intl.formatMessage({ id: 'BookingDateTimeForm.bookingEndDateTitle' });
           const bookingEndTimeLabel = intl.formatMessage({ id: 'BookingDateTimeForm.bookingEndTimeTitle' });
           const bookingStartTimeAtLeastMessage = intl.formatMessage({ id: 'BookingDateTimeForm.requireBeforeStartTime12hrs' });
+          
           const timeSlotsError = fetchTimeSlotsError ? (
             <p className={css.timeSlotsError}>
               <FormattedMessage id="BookingDatesForm.timeSlotsError" />
